@@ -4,6 +4,7 @@
 import re
 from recognizer.pddl.action import Action
 
+
 class PDDL_Parser:
 
     # ------------------------------------------
@@ -175,6 +176,8 @@ class PDDL_Parser:
 # ==========================================
 # Main
 # ==========================================
+
+
 if __name__ == '__main__':
     import sys
     import pprint

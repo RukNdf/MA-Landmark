@@ -76,11 +76,11 @@ class PDDL_Test(unittest.TestCase):
         parser = PDDL_Parser()
         parser.parse_domain('examples/dinner/dinner.pddl')
         parser.parse_problem('examples/dinner/pb1.pddl')
-        self.assertEqual(parser.problem_name, 'pb1')
-        self.assertEqual(parser.objects, [])
-        self.assertEqual(parser.state, [('garbage',),('clean',),('quiet',)])
-        self.assertEqual(parser.positive_goals, [('dinner',), ('present',)])
-        self.assertEqual(parser.negative_goals, [('garbage',)])
+        self.assertEqual('pb1', parser.problem_name)
+        self.assertEqual({}, parser.objects)
+        self.assertEqual(frozenset([('garbage',),('clean',),('quiet',)]), parser.state)
+        self.assertEqual(frozenset([('dinner',), ('present',)]), parser.positive_goals)
+        self.assertEqual(frozenset([('garbage',)]), parser.negative_goals)
 
     #-------------------------------------------
     # Split propositions
@@ -102,13 +102,13 @@ class PDDL_Test(unittest.TestCase):
         parser.parse_domain('examples/dinner/dinner.pddl')
         parser.parse_problem('examples/dinner/pb1.pddl')
         planner = PDDL_Planner()
-        self.assertTrue(planner.solvable(parser.domain,parser.initial_state,parser.goal))
-        initial_state = [p for p in parser.initial_state]
+        self.assertTrue(planner.solvable(parser.actions,parser.state,(parser.positive_goals,parser.negative_goals)))
+        initial_state = [p for p in parser.state]
         initial_state.remove(("clean",))
-        self.assertFalse(planner.solvable(parser.domain,initial_state,parser.goal))
-        domain = [a for a in parser.domain]
+        self.assertFalse(planner.solvable(parser.actions,initial_state,(parser.positive_goals,parser.negative_goals)))
+        domain = [a for a in parser.actions]
         domain.pop(0)
-        self.assertFalse(planner.solvable(domain, initial_state, parser.goal))
+        self.assertFalse(planner.solvable(domain, initial_state, (parser.positive_goals,parser.negative_goals)))
 
 if __name__ == '__main__':
     unittest.main()
