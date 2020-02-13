@@ -1,4 +1,4 @@
-from .pddl_planner import PDDL_Planner
+from recognizer.pddl.pddl_planner import PDDL_Planner
 from queue import PriorityQueue
 import sys
 
@@ -94,6 +94,8 @@ class Heuristic_Planner(PDDL_Planner):
 # ==========================================
 # Main
 # ==========================================
+
+
 if __name__ == '__main__':
     import sys
     domain = sys.argv[1]

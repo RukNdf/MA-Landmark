@@ -33,7 +33,7 @@
 
 ;; moves a robot between two adjacent locations
  (:action move                                
-     :parameters (?r - robot ?from ?to - location)
+     :parameters (?r - robot ?from - location ?to - location)
      :precondition (and (adjacent ?from ?to)
                       (at ?r ?from) (not (occupied ?to)))
      :effect (and (at ?r ?to) (not (occupied ?from))

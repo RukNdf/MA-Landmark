@@ -21,11 +21,16 @@ class Domain():
         self.ss = None
         self.actions = {}
         for action in actions:
-            self.actions[action.name] = action
+            self.actions[(action.name,action.parameters)] = action
 
     @property
     def all_facts(self):
+        all_facts = set([])
+        for op in self.actions.values():
+            for fact in op.all_facts():
+                all_facts.add(tuple(fact))
         all_facts = set([fact for op in self.actions.values() for fact in op.all_facts()])
+        # all_facts = { fact for op in self.actions.values() for fact in op.all_facts() }
         return all_facts
 
     @property

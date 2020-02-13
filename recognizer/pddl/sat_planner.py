@@ -6,8 +6,8 @@ from itertools import combinations
 # from z3 import *
 from z3 import Solver, And, Or, Not, Implies, sat, Bool
 
-from .domain import Domain
-from .pddl_planner import PDDL_Planner
+from recognizer.pddl.domain import Domain
+from recognizer.pddl.pddl_planner import PDDL_Planner
 
 
 class SAT_Planner(PDDL_Planner):
@@ -18,14 +18,15 @@ class SAT_Planner(PDDL_Planner):
         self.max_length = 20
         self.verbose = verbose
 
-    def solve(self, domain, initial_state, goal_state):
+    def solve(self, actions, initial_state, goal_state):
         # encode the problem
         for length in range(0,self.max_length):
             s = Solver()
             self.props.clear()
             self.action_map.clear()
-            self.encode_formula(s, domain, initial_state, goal_state, length)
-            print(s.to_smt2())
+            print("Encoding domain with length {0}".format(length))
+            self.encode_formula(s, actions, initial_state, goal_state, length)
+            if self.verbose: print(s.to_smt2())
             # print(s)
             if s.check() == sat:
                 if self.verbose: print("Model found with length {0}".format(length))
@@ -37,7 +38,6 @@ class SAT_Planner(PDDL_Planner):
                 if self.verbose: print("No model found with length {0}".format(length))
         return None
 
-
     def extract_plan(self, model, length):
         plan = [None for i in range(length)]
         for prop in model:
@@ -46,8 +46,6 @@ class SAT_Planner(PDDL_Planner):
                 (action,index) = self.action_map[prop.name()]
                 plan[index] = action
         return plan
-
-
 
     def encode_formula(self, s, actions, initial_state, goal_state, plan_length):
         # Parsed data
@@ -75,7 +73,10 @@ class SAT_Planner(PDDL_Planner):
         for pred in goal_not:
             goal_formula.append(Not(self.prop_at(pred, plan_length)))
 
-        goal_formula = And(*goal_formula)
+        if goal_formula:
+            goal_formula = And(*goal_formula)
+        else:
+            if self.verbose: print("Warning: empty goal formula")
 
         action_formula = []
         exclusion_axiom = []
@@ -127,16 +128,18 @@ class SAT_Planner(PDDL_Planner):
                     cons = Or(*cons)
                     frame_axioms.append(Implies(ant, cons))
 
+        if not exclusion_axiom and self.verbose: print('Warning: empty exclusion axiom')
+        if not frame_axioms and self.verbose: print('Warning: empty frame axiom')
+
         s.add(s0_formula)
         s.add(goal_formula)
         s.add(And(*action_formula))
         s.add(And(*exclusion_axiom))
         s.add(And(*frame_axioms))
 
-
     def action(self,action,t):
 
-        ant = self.action_prop_at(action,t)#TODO Add parameters when we start to deal with FOL
+        ant = self.action_prop_at(action,t)
         precond = []
         for pred in action.positive_preconditions:
             precond.append(self.prop_at(pred,t))
@@ -155,7 +158,7 @@ class SAT_Planner(PDDL_Planner):
         return st
 
     def action_prop_at(self,action,t):
-        prop = self.prop_at((action.name,),t)
+        prop = self.prop_at((action.name, action.parameters),t)
         self.action_map[prop.decl().name()] = (action,t)
         return prop
 
@@ -173,11 +176,13 @@ class SAT_Planner(PDDL_Planner):
 # ==========================================
 # Main
 # ==========================================
+
+
 if __name__ == '__main__':
     import sys
     domain = sys.argv[1]
     problem = sys.argv[2]
-    planner = SAT_Planner()
+    planner = SAT_Planner(verbose=True)
     plan = planner.solve_file(domain, problem)
     if plan:
         print('plan:')

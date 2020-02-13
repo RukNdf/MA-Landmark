@@ -10,6 +10,7 @@ from recognizer.pddl.action import Action
 # Test PDDL
 # ==========================================
 
+
 class PDDL_Test(unittest.TestCase):
 
     # ------------------------------------------

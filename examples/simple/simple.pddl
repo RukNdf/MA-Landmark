@@ -1,47 +1,23 @@
 ; This is a comment line
 (define (domain simple) ; There is no block comment like
-  (:requirements :strips)
+  (:requirements :strips :typing)
+
+  (:types
+  t1
+  t2
+  )
+
   (:predicates
-    (p)
-    (q)
-    (r)
+    (p ?v1 - t1)
+    (q ?v1 - t2)
   )
-  (:action a
-    :parameters ()
+  (:action ac1
+    :parameters (?p1 - t1 ?p2 - t2)
     :precondition (and
-      (p)
+      (p ?p1)
     )
     :effect (and
-      (q)
-    )
-  )
-  (:action b
-    :parameters ()
-    :precondition (and
-      (q)
-    )
-    :effect (and
-      (not (q))
-    )
-  )
-  (:action c
-    :parameters ()
-    :precondition (and
-      (q)
-    )
-    :effect (and
-      (r)
-      (not (q))
-    )
-  )
-  (:action d
-    :parameters ()
-    :precondition (and
-      (r)
-    )
-    :effect (and
-      (p)
-      (not (q))
+      (q ?p2)
     )
   )
 )

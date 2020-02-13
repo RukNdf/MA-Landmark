@@ -13,6 +13,7 @@ import time
 # Test Propositional_Planner
 # ==========================================
 
+
 class Propositional_Planner_Test(unittest.TestCase):
 
     # ------------------------------------------
@@ -25,13 +26,13 @@ class Propositional_Planner_Test(unittest.TestCase):
                 Action('cook', [], [('clean',)], [], [('dinner',)], []),
                 Action('wrap', [], [('quiet',)], [], [('present',)], []),
                 Action('carry', [], [('garbage',)], [], [], [('garbage',), ('clean',)])
-            ], planner.solve_file('../../examples/dinner/dinner.pddl', '../../examples/dinner/pb1.pddl')[0])
+            ], planner.solve_file('examples/dinner/dinner.pddl', 'examples/dinner/pb1.pddl')[0])
 
     # @unittest.skipUnless(sys.platform.startswith("osx"), "Skip, as travis will timeout")
     # @unittest.skip("Skip, to avoid timeout")
     def test_solve_psr(self):
-        domain_template = '../../examples/psr-small/domain{0}.pddl'
-        problem_template = '../../examples/psr-small/task{0}.pddl'
+        domain_template = 'examples/psr-small/domain{0}.pddl'
+        problem_template = 'examples/psr-small/task{0}.pddl'
         planner = Propositional_Planner(time_limit=0.1)
         last_domain = 50
         # last_domain = 14
@@ -47,7 +48,7 @@ class Propositional_Planner_Test(unittest.TestCase):
 
     def test_solve_heuristic(self):
         planner = Heuristic_Planner()
-        plan = planner.solve_file('../../examples/dinner/dinner.pddl', '../../examples/dinner/pb1.pddl')[0]
+        plan = planner.solve_file('examples/dinner/dinner.pddl', 'examples/dinner/pb1.pddl')[0]
         self.assertIsNotNone(plan)
         self.assertEqual(3, len(plan))
         # print("Plan: ", plan)
@@ -62,7 +63,7 @@ class Propositional_Planner_Test(unittest.TestCase):
     #@unittest.skipUnless(sys.platform.startswith("osx"), "Skip, since travis does not like z3")
     def test_solve_sat(self):
         planner = SAT_Planner()
-        plan = planner.solve_file('../../examples/dinner/dinner.pddl', '../../examples/dinner/pb1.pddl')[0]
+        plan = planner.solve_file('examples/dinner/dinner.pddl', 'examples/dinner/pb1.pddl')[0]
         self.assertIsNotNone(plan)
         self.assertEqual(3,len(plan))
         # print plan
@@ -72,6 +73,20 @@ class Propositional_Planner_Test(unittest.TestCase):
                 Action('dolly', [], [('garbage',)], [], [], [('garbage',), ('quiet',)])],
             plan
         )
+
+        blk = "examples/blocksworld/blocksworld.pddl"
+        b_pb1 = "examples/blocksworld/pb1.pddl"
+        b_pb2 = "examples/blocksworld/pb2.pddl"
+        b_pb3 = "examples/blocksworld/pb3.pddl"
+        b_pb4 = "examples/blocksworld/pb4.pddl"
+        b_pb5 = "examples/blocksworld/pb5.pddl"
+        b_pb6 = "examples/blocksworld/pb6.pddl"
+
+        bpd_list = [b_pb1, b_pb2, b_pb3, b_pb4, b_pb5, b_pb6]
+        results = [2, 6, 4, 8, 8, 10]
+        for b, r in zip(bpd_list, results):
+            plan, time = planner.solve_file(blk, b, False)
+            self.assertEqual(r, len(plan))
 
     def test_benchmark_planners(self):
         pass
