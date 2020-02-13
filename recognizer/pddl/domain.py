@@ -3,6 +3,7 @@ from itertools import chain, combinations
 from .action import Action
 from .state import applicable, apply
 
+
 def powerset(iterable):
     s = list(iterable)
     return chain.from_iterable(combinations(s, r) for r in range(len(s)+1))

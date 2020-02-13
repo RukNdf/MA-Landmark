@@ -21,13 +21,11 @@ class Propositional_Planner_Test(unittest.TestCase):
 
     def test_solve_dinner(self):
         planner = Propositional_Planner()
-        self.assertEqual(planner.solve_file('../../examples/dinner/dinner.pddl', '../../examples/dinner/pb1.pddl'),
-                         [
+        self.assertEqual([
                 Action('cook', [], [('clean',)], [], [('dinner',)], []),
                 Action('wrap', [], [('quiet',)], [], [('present',)], []),
                 Action('carry', [], [('garbage',)], [], [], [('garbage',), ('clean',)])
-            ]
-                         )
+            ], planner.solve_file('../../examples/dinner/dinner.pddl', '../../examples/dinner/pb1.pddl')[0])
 
     # @unittest.skipUnless(sys.platform.startswith("osx"), "Skip, as travis will timeout")
     # @unittest.skip("Skip, to avoid timeout")
@@ -49,7 +47,7 @@ class Propositional_Planner_Test(unittest.TestCase):
 
     def test_solve_heuristic(self):
         planner = Heuristic_Planner()
-        plan = planner.solve_file('../../examples/dinner/dinner.pddl', '../../examples/dinner/pb1.pddl')
+        plan = planner.solve_file('../../examples/dinner/dinner.pddl', '../../examples/dinner/pb1.pddl')[0]
         self.assertIsNotNone(plan)
         self.assertEqual(3, len(plan))
         # print("Plan: ", plan)
@@ -64,15 +62,15 @@ class Propositional_Planner_Test(unittest.TestCase):
     #@unittest.skipUnless(sys.platform.startswith("osx"), "Skip, since travis does not like z3")
     def test_solve_sat(self):
         planner = SAT_Planner()
-        plan = planner.solve_file('examples/dinner/dinner.pddl', 'examples/dinner/pb1.pddl')
+        plan = planner.solve_file('../../examples/dinner/dinner.pddl', '../../examples/dinner/pb1.pddl')[0]
         self.assertIsNotNone(plan)
         self.assertEqual(3,len(plan))
         # print plan
-        self.assertEqual(plan,
-            [ Action('wrap', [], [('quiet',)],[],[('present',)],[]),
-              Action('dolly', [], [('garbage',)],[],[],[('garbage',), ('quiet',)]),
-              Action('cook', [], [('clean',)],[],[('dinner',)],[])]
-
+        self.assertEqual(
+            [Action('wrap', [], [('quiet',)],[],[('present',)],[]),
+                Action('cook', [], [('clean',)],[],[('dinner',)],[]),
+                Action('dolly', [], [('garbage',)], [], [], [('garbage',), ('quiet',)])],
+            plan
         )
 
     def test_benchmark_planners(self):

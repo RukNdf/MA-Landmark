@@ -1,7 +1,14 @@
 from recognizer.pddl.pddl_parser import PDDL_Parser
 from recognizer.pddl.state import applicable, apply
 
+
 class PDDL_Planner:
+
+    def applicable(self, state, positive, negative):
+        return applicable(state, positive, negative)
+
+    def apply(self, state, positive, negative):
+        return apply(state, positive, negative)
 
     def solvable(self, domain, initial_state, goal_state):
         """"Computes whether the problem posed by initial_state, goal_state is solvable by reachability analysis"""

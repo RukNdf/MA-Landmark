@@ -3,26 +3,50 @@
 
 import itertools
 
+from .state import applicable, apply
+
 class Action:
 
-    def __init__(self, name, parameters, positive_preconditions, negative_preconditions, add_effects, del_effects):
+    def __init__(self, name, parameters, positive_preconditions, negative_preconditions, add_effects, del_effects, cost = 0):
         self.name = name
         self.parameters = parameters
-        self.positive_preconditions = positive_preconditions
-        self.negative_preconditions = negative_preconditions
-        self.add_effects = add_effects
-        self.del_effects = del_effects
+        self.positive_preconditions = frozenset(positive_preconditions)
+        self.negative_preconditions = frozenset(negative_preconditions)
+        self.add_effects = frozenset(add_effects)
+        self.del_effects = frozenset(del_effects)
+        self.cost = cost
+
+    def __repr__(self):
+        return "<" + self.name + "," + str(self.parameters) + "," + str(self.positive_preconditions) + "," + str(
+            self.negative_preconditions) + \
+               "," + str(self.add_effects) + "," + str(self.del_effects) + "," + str(self.cost) + ">"
 
     def __str__(self):
         return 'action: ' + self.name + \
-        '\n  parameters: ' + str(self.parameters) + \
-        '\n  positive_preconditions: ' + str(list(self.positive_preconditions)) + \
-        '\n  negative_preconditions: ' + str(list(self.negative_preconditions)) + \
-        '\n  add_effects: ' + str(list(self.add_effects)) + \
-        '\n  del_effects: ' + str(list(self.del_effects)) + '\n'
+            '\n  parameters: ' + str(self.parameters) + \
+            '\n  positive_preconditions: ' + str(list(self.positive_preconditions)) + \
+            '\n  negative_preconditions: ' + str(list(self.negative_preconditions)) + \
+            '\n  add_effects: ' + str(list(self.add_effects)) + \
+            '\n  del_effects: ' + str(list(self.del_effects)) + '\n'
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
+
+    def all_facts(self):
+        facts = []
+        # TODO we need to change this to separate ground from lifted operators, now I'm assuming it's propositional
+        # facts += [str(prop) for prop in self.positive_preconditions]
+        # facts += [str(prop) for prop in self.negative_preconditions]
+        # facts += [str(prop) for prop in self.add_effects]
+        # facts += [str(prop) for prop in self.del_effects]
+        facts += self.positive_preconditions
+        facts += self.negative_preconditions
+        facts += self.add_effects
+        facts += self.del_effects
+        return set(facts)
+
+    def applicable(self, state):
+        return applicable(state, self.positive_preconditions, self.negative_preconditions)
 
     def groundify(self, objects):
         if not self.parameters:

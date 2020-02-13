@@ -3,8 +3,8 @@
 
 from itertools import combinations
 
-from z3 import *
-# from z3 import Solver, And, Or, Not, Implies, sat, Bool
+# from z3 import *
+from z3 import Solver, And, Or, Not, Implies, sat, Bool
 
 from .domain import Domain
 from .pddl_planner import PDDL_Planner

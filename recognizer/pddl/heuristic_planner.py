@@ -1,6 +1,7 @@
 from .pddl_planner import PDDL_Planner
-from queue import Queue
+from queue import PriorityQueue
 import sys
+
 
 class Heuristic(object):
 
@@ -38,7 +39,8 @@ class MaxHeuristic(Heuristic):
                 if a.applicable(reachable_literals):
                     reachable_literals = reachable_literals.union(a.add_effects)
 
-        return sys.maxint
+        return float('inf')
+
 
 class Heuristic_Planner(PDDL_Planner):
 
@@ -64,7 +66,7 @@ class Heuristic_Planner(PDDL_Planner):
         # Search
         visited = set([state])
         # fringe = [state, None]
-        fringe = Queue.PriorityQueue()
+        fringe = PriorityQueue()
         fringe.put((state,None),0)
         while fringe:
             # state = fringe.pop(0)
