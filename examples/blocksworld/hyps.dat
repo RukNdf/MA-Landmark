@@ -1,0 +1,5 @@
+(on a b), (on c d)
+(on e f)
+(on b a), (on c b), (on a d)
+(on b a), (on c d), (on e f)
+(on c a)

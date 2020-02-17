@@ -5,6 +5,11 @@ import re
 from recognizer.pddl.action import Action
 
 
+def string_to_fluent(sfluent):
+    """Converts a string sfluent into a tuple """
+    return tuple(tok.strip() for tok in sfluent.split(' '))
+
+
 class PDDL_Parser:
 
     # ------------------------------------------
