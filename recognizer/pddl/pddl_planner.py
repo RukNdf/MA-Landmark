@@ -4,6 +4,9 @@ from recognizer.pddl.state import applicable, apply
 
 class PDDL_Planner:
 
+    def __init__(self, verbose=False):
+        self.verbose = verbose
+
     def applicable(self, state, positive, negative):
         return applicable(state, positive, negative)
 
@@ -44,7 +47,7 @@ class PDDL_Planner:
     # Solve
     #-----------------------------------------------
 
-    def solve_file(self, domainfile, problemfile, verbose=True):
+    def solve_file(self, domainfile, problemfile, verbose=False):
         # Parser
         import time
         start_time = time.time()
@@ -59,6 +62,8 @@ class PDDL_Planner:
         for action in parser.actions:
             for act in action.groundify(parser.objects):
                 ground_actions.append(act)
+        # if verbose:
+        print("Number of actions: %d"%len(ground_actions))
         plan = self.solve(ground_actions, parser.state, (parser.positive_goals, parser.negative_goals))
         final_time = time.time() - start_time
         if verbose:

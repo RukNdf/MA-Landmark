@@ -12,11 +12,14 @@ from recognizer.pddl.pddl_planner import PDDL_Planner
 
 class SAT_Planner(PDDL_Planner):
 
-    def __init__(self, verbose = False):
+    def __init__(self, allow_parallel_actions=False, verbose=False):
+        super().__init__(verbose)
         self.props = dict()
         self.action_map = dict()
         self.max_length = 20
         self.verbose = verbose
+        self.allow_parallel_actions = allow_parallel_actions
+        self.action_mutexes = dict()
 
     def solve(self, actions, initial_state, goal_state):
         # encode the problem
@@ -39,12 +42,12 @@ class SAT_Planner(PDDL_Planner):
         return None
 
     def extract_plan(self, model, length):
-        plan = [None for i in range(length)]
+        plan = []
         for prop in model:
             if prop.name() in self.action_map.keys() and model[prop]:
                 # print("Adding "+prop.name())
                 (action,index) = self.action_map[prop.name()]
-                plan[index] = action
+                plan.append(action)
         return plan
 
     def encode_formula(self, s, actions, initial_state, goal_state, plan_length):
@@ -53,6 +56,8 @@ class SAT_Planner(PDDL_Planner):
         preds = domain.all_facts
         goal_pos = goal_state[0]
         goal_not = goal_state[1]
+        # Compute Mutexes
+        if self.allow_parallel_actions: self.compute_action_mutexes(actions)
 
         # Encode initial state
         s0_formula = []
@@ -90,17 +95,28 @@ class SAT_Planner(PDDL_Planner):
             for a in actions:
                 self.action_prop_at(a,i)
 
+        full_frame_axioms = [] # This is to ensure at least one action is present at every time
         #encode stuff over the length of the plan
         for i in range(0,plan_length):
             action_names = []
-            #Encode actions
+            action_propositions = dict()
+            # Encode actions
             for action in actions:
-                action_names.append(self.action_prop_at(action,i))
+                action_prop = self.action_prop_at(action,i)
+                action_names.append(action_prop)
+                action_propositions[action_prop] = action
                 action_formula.append(self.action(action,i))
 
-            #Encode exclusion axioms
+            # Encode full frame axiom
+            full_frame_axioms.append(Or(*action_names))
+
+            # Encode exclusion axioms
             for (a1,a2) in combinations(action_names,2):
-                exclusion_axiom.append(Or(Not(a1),Not(a2)))
+                if self.allow_parallel_actions:
+                    if action_propositions[a2] in self.action_mutexes[action_propositions[a1]]:
+                        exclusion_axiom.append(Or(Not(a1),Not(a2)))
+                else:
+                    exclusion_axiom.append(Or(Not(a1), Not(a2)))
 
 
             #Encode frame axioms (explanatory frame actions)
@@ -134,6 +150,7 @@ class SAT_Planner(PDDL_Planner):
         s.add(s0_formula)
         s.add(goal_formula)
         s.add(And(*action_formula))
+        s.add(And(*full_frame_axioms))
         s.add(And(*exclusion_axiom))
         s.add(And(*frame_axioms))
 
@@ -173,6 +190,14 @@ class SAT_Planner(PDDL_Planner):
 
         return self.props[key]
 
+    def compute_action_mutexes(self, actions):
+        self.action_mutexes = dict()
+        for action in actions:
+            self.action_mutexes[action] = set([])
+        for (a1, a2) in combinations(actions,2):
+            if a1.is_mutex(a2):
+                self.action_mutexes[a1].add(a2)
+
 # ==========================================
 # Main
 # ==========================================
@@ -182,11 +207,12 @@ if __name__ == '__main__':
     import sys
     domain = sys.argv[1]
     problem = sys.argv[2]
-    planner = SAT_Planner(verbose=True)
+    planner = SAT_Planner(allow_parallel_actions=True, verbose=False)
     plan = planner.solve_file(domain, problem)
     if plan:
         print('plan:')
         for act in plan:
+            # print('(' + act.name + ''.join(' ' + p for p in act.parameters) + ')')
             print(act)
     else:
         print('No plan was found')

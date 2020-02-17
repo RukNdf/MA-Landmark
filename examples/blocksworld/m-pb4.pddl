@@ -1,0 +1,8 @@
+(define (problem m-pb4)
+  (:domain ma-blocksworld)
+  (:objects a b c d ag1 ag2 ag3)
+  (:init (onTable a) (on b a) (on c b) (on d c) (clear d)
+    (equal a a) (equal b b) (equal c c) (equal d d)
+    (agent ag1) (agent ag2) (agent ag3)
+    )
+  (:goal (and (on b a) (on c b) (on a d))))

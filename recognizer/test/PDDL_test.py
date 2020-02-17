@@ -82,27 +82,46 @@ class PDDL_Test(unittest.TestCase):
         self.assertEqual(frozenset([('dinner',), ('present',)]), parser.positive_goals)
         self.assertEqual(frozenset([('garbage',)]), parser.negative_goals)
 
-    #-------------------------------------------
+    # -------------------------------------------
     # Split propositions
-    #-------------------------------------------
+    # -------------------------------------------
 
     def test_parse_first_order(self):
         parser = PDDL_Parser()
         parser.parse_domain('examples/dwr/dwr.pddl')
         parser.parse_problem('examples/dwr/pb1.pddl')
         self.assertEqual(parser.problem_name, 'pb1')
-        # self.assertEqual(parser.objects, ['r1','l1','l2','k1','k2','p1','q1','p2','q2','ca','cb','cc','cd','ce','cf', 'pallet'])
-        print(parser.actions)
-        # self.assertEqual(parser.state, [['garbage'], ['clean'], ['quiet']])
-        # self.assertEqual(parser.positive_goals, [['dinner'], ['present']])
-        # self.assertEqual(parser.negative_goals, [['garbage']])
+        print(parser.objects.values())
+        self.assertEqual(set(['r1','l1','l2','k1','k2','p1','q1','p2','q2','ca','cb','cc','cd','ce','cf', 'pallet']),
+                         {object for obj_types in parser.objects.values() for object in obj_types})
+        # print(parser.actions)
+
+    def test_parse_types(self):
+        parser = PDDL_Parser()
+        parser.parse_domain('examples/dwr/dwr.pddl')
+        parser.parse_problem('examples/dwr/pb1.pddl')
+        self.assertEqual(parser.problem_name, 'pb1')
+        print(parser.types)
+
+    def test_mutex(self):
+        parser = PDDL_Parser()
+        cook = Action('cook', [], [('clean',)], [], [('dinner',)], [])
+        wrap = Action('wrap', [], [('quiet',)], [], [('present',)], [])
+        carry = Action('carry', [], [('garbage',)], [], [], [('garbage',), ('clean',)])
+        dolly = Action('dolly', [], [('garbage',)], [], [], [('garbage',), ('quiet',)])
+        self.assertTrue(cook.is_mutex(carry))
+        self.assertTrue(carry.is_mutex(cook))
+        self.assertTrue(wrap.is_mutex(dolly))
+        self.assertTrue(dolly.is_mutex(wrap))
+        self.assertFalse(cook.is_mutex(wrap))
+
 
     def test_reachability_analysis(self):
         parser = PDDL_Parser()
         parser.parse_domain('examples/dinner/dinner.pddl')
         parser.parse_problem('examples/dinner/pb1.pddl')
         planner = PDDL_Planner()
-        self.assertTrue(planner.solvable(parser.actions,parser.state,(parser.positive_goals,parser.negative_goals)))
+        self.assertTrue(planner.solvable(parser.actions,parser.state,(parser.positive_goals, parser.negative_goals)))
         initial_state = [p for p in parser.state]
         initial_state.remove(("clean",))
         self.assertFalse(planner.solvable(parser.actions,initial_state,(parser.positive_goals,parser.negative_goals)))

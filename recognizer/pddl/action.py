@@ -5,6 +5,7 @@ import itertools
 
 from .state import applicable, apply
 
+
 class Action:
 
     def __init__(self, name, parameters, positive_preconditions, negative_preconditions, add_effects, del_effects, cost = 0):
@@ -31,6 +32,9 @@ class Action:
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
+
+    def __hash__(self):
+        return hash((self.name, self.parameters))  # This should work even in the ground case.
 
     def all_facts(self):
         facts = []
@@ -63,6 +67,18 @@ class Action:
             add_effects = self.replace(self.add_effects, variables, assignment)
             del_effects = self.replace(self.del_effects, variables, assignment)
             yield Action(self.name, assignment, positive_preconditions, negative_preconditions, add_effects, del_effects)
+
+    def is_mutex(self, an_action):
+        if self.positive_preconditions.intersection(an_action.negative_preconditions | an_action.del_effects):
+            return True
+        if self.negative_preconditions.intersection(an_action.positive_preconditions | an_action.add_effects):
+            return True
+        if self.add_effects.intersection(an_action.negative_preconditions | an_action.del_effects):
+            return True
+        if self.del_effects.intersection(an_action.positive_preconditions | an_action.add_effects):
+            return True
+
+        return False
 
     def replace(self, group, variables, assignment):
         g = []

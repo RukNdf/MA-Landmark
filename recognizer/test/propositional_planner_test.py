@@ -67,12 +67,19 @@ class Propositional_Planner_Test(unittest.TestCase):
         self.assertIsNotNone(plan)
         self.assertEqual(3,len(plan))
         # print plan
-        self.assertEqual(
-            [Action('wrap', [], [('quiet',)],[],[('present',)],[]),
+        self.assertIn(plan, [[Action('wrap', [], [('quiet',)],[],[('present',)],[]),
                 Action('cook', [], [('clean',)],[],[('dinner',)],[]),
                 Action('dolly', [], [('garbage',)], [], [], [('garbage',), ('quiet',)])],
-            plan
-        )
+                             [Action('cook', [], [('clean',)], [], [('dinner',)], []),
+                              Action('wrap', [], [('quiet',)], [], [('present',)], []),
+                              Action('dolly', [], [('garbage',)], [], [], [('garbage',), ('quiet',)])]
+                             ])
+        # self.assertEqual(
+        #     [Action('wrap', [], [('quiet',)],[],[('present',)],[]),
+        #         Action('cook', [], [('clean',)],[],[('dinner',)],[]),
+        #         Action('dolly', [], [('garbage',)], [], [], [('garbage',), ('quiet',)])],
+        #     plan
+        # )
 
         blk = "examples/blocksworld/blocksworld.pddl"
         b_pb1 = "examples/blocksworld/pb1.pddl"
@@ -86,7 +93,7 @@ class Propositional_Planner_Test(unittest.TestCase):
         results = [2, 6, 4, 8, 8, 10]
         for b, r in zip(bpd_list, results):
             plan, time = planner.solve_file(blk, b, False)
-            self.assertEqual(r, len(plan))
+            self.assertEqual(r, len(plan), "Failed on BW prob %s"%b )
 
     def test_benchmark_planners(self):
         pass

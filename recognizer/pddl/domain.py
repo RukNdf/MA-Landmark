@@ -17,7 +17,7 @@ class Problem():
 
 class Domain():
 
-    def __init__(self,actions):
+    def __init__(self, actions):
         self.ss = None
         self.actions = {}
         for action in actions:

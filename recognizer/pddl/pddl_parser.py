@@ -11,6 +11,16 @@ class PDDL_Parser:
     # Tokens
     # ------------------------------------------
 
+    def __init__(self):
+        self.domain_name = None
+        self.actions = []
+        self.types = dict()  # Types are a dictionary indicating parent type
+        self.objects = dict()
+        self.state = frozenset()
+        self.positive_goals = frozenset()
+        self.negative_goals = frozenset()
+        self.predicates = dict()  # We store predicates with their names and arities
+
     def scan_tokens(self, filename):
         with open(filename,'r') as f:
             # Remove single line comments
@@ -54,9 +64,9 @@ class PDDL_Parser:
                 elif t == ':requirements':
                     pass # TODO
                 elif t == ':predicates':
-                    pass # TODO
+                    self.parse_predicates(group)
                 elif t == ':types':
-                    pass # TODO
+                    self.parse_types(group)
                 elif t == ':action':
                     self.parse_action(group)
                 else: print(str(t) + ' is not recognized in domain')
@@ -100,9 +110,9 @@ class PDDL_Parser:
             else: print(str(t) + ' is not recognized in action')
         self.actions.append(Action(name, parameters, frozenset(positive_preconditions), frozenset(negative_preconditions), frozenset(add_effects), frozenset(del_effects)))
 
-    #-----------------------------------------------
+    # -----------------------------------------------
     # Parse problem
-    #-----------------------------------------------
+    # -----------------------------------------------
 
     def parse_problem(self, problem_filename):
         tokens = self.scan_tokens(problem_filename)
@@ -133,7 +143,7 @@ class PDDL_Parser:
                         else:
                             object_list.append(group.pop(0))
                     if object_list:
-                        if not 'object' in self.objects:
+                        if 'object' not in self.objects:
                             self.objects['object'] = []
                         self.objects['object'] += object_list
                 elif t == ':init':
@@ -147,9 +157,30 @@ class PDDL_Parser:
                     self.negative_goals = frozenset(neg)
                 else: print(str(t) + ' is not recognized in problem')
 
-    #-----------------------------------------------
+    # -----------------------------------------------
+    #  Parse Types
+    # -----------------------------------------------
+
+    def parse_types(self, group):
+        self.types = dict()
+        group.pop(0)
+        last_type = None
+        while group:
+            if group[0] == '-':
+                if last_type is None: print("Error parsing types")
+                group.pop(0)
+                self.types[last_type] = group.pop(0)
+                object_list = []
+            else:
+                last_type = group.pop(0)
+                self.types[last_type] = None
+
+    def parse_predicates(self, group):
+        pass # TODO
+
+    # -----------------------------------------------
     # Split propositions
-    #-----------------------------------------------
+    # -----------------------------------------------
 
     def split_propositions(self, group, pos, neg, name, part):
         if not type(group) is list:
