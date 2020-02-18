@@ -4,9 +4,8 @@
 import unittest
 from recognizer.pddl.action import Action
 from recognizer.pddl.propositional_planner import Propositional_Planner
-from recognizer.pddl.sat_planner import SAT_Planner
+from recognizer.pddl.sat_planner import SATPlanner
 from recognizer.pddl.heuristic_planner import Heuristic_Planner
-import sys
 import time
 
 # ==========================================
@@ -62,7 +61,7 @@ class Propositional_Planner_Test(unittest.TestCase):
 
     #@unittest.skipUnless(sys.platform.startswith("osx"), "Skip, since travis does not like z3")
     def test_solve_sat(self):
-        planner = SAT_Planner()
+        planner = SATPlanner()
         plan = planner.solve_file('examples/dinner/dinner.pddl', 'examples/dinner/pb1.pddl')[0]
         self.assertIsNotNone(plan)
         self.assertEqual(3,len(plan))

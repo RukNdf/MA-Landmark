@@ -11,6 +11,7 @@ def custom_partition(s, sep):
     if i == 0: return (None, s[i], s[i + 1:])
     return (s[:i], s[i], s[i + 1:])
 
+
 class Hypothesis:
 
     def __init__(self, atoms=[], team = None):
@@ -20,7 +21,29 @@ class Hypothesis:
         self.team = team
 
     def evaluate(self, index, observations):
-        pass
+        hyp_problem = 'hyp_%d_problem.pddl' % index
+        self.generate_pddl_for_hyp_plan(hyp_problem)
+
+    def generate_pddl_for_hyp_plan(self, out_name):
+        instream = open('template.pddl')
+        outstream = open(out_name, 'w')
+
+        for line in instream:
+            line = line.strip()
+            if '<HYPOTHESIS>' in line:
+                for atom in self.atoms:
+                    outstream.write(atom)
+            elif '<TEAM-OBJS>' in line:
+                for agent in self.team:
+                    outstream.write(agent)
+            elif '<TEAM-ATOMS>' in line:
+                for agent in self.team:
+                    outstream.write('(agent %s)'%agent)
+            else:
+                outstream.write(line)
+
+        outstream.close()
+        instream.close()
 
     @staticmethod
     def load_hypotheses(hyp_file = "hyps.dat"):
@@ -63,5 +86,10 @@ class Observations:
                 self.observations.append(obs)
         instream.close()
 
+    @property
     def __len__(self):
         return len(self.observations)
+
+    @property
+    def __iter__(self):
+        return self.observations.__iter__()

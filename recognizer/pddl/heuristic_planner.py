@@ -44,7 +44,8 @@ class MaxHeuristic(Heuristic):
 
 class Heuristic_Planner(PDDL_Planner):
 
-    def __init__(self,heuristic=MaxHeuristic()):
+    def __init__(self,heuristic=MaxHeuristic(),verbose=False):
+        super().__init__(verbose)
         self.h = heuristic
 
     # -----------------------------------------------

@@ -10,7 +10,7 @@ from recognizer.pddl.domain import Domain
 from recognizer.pddl.pddl_planner import PDDL_Planner
 
 
-class SAT_Planner(PDDL_Planner):
+class SATPlanner(PDDL_Planner):
 
     def __init__(self, allow_parallel_actions=False, verbose=False):
         super().__init__(verbose)
@@ -22,6 +22,8 @@ class SAT_Planner(PDDL_Planner):
         self.action_mutexes = dict()
 
     def solve(self, actions, initial_state, goal_state):
+        """Solves the planning problem given the elements of the problem
+        """
         # encode the problem
         for length in range(0,self.max_length):
             s = Solver()
@@ -42,13 +44,13 @@ class SAT_Planner(PDDL_Planner):
         return None
 
     def extract_plan(self, model, length):
-        plan = []
+        extracted_plan = []
         for prop in model:
             if prop.name() in self.action_map.keys() and model[prop]:
                 # print("Adding "+prop.name())
                 (action,index) = self.action_map[prop.name()]
-                plan.append(action)
-        return plan
+                extracted_plan.append(action)
+        return extracted_plan
 
     def encode_formula(self, s, actions, initial_state, goal_state, plan_length):
         # Parsed data
@@ -207,7 +209,7 @@ if __name__ == '__main__':
     import sys
     domain = sys.argv[1]
     problem = sys.argv[2]
-    planner = SAT_Planner(allow_parallel_actions=True, verbose=False)
+    planner = SATPlanner(allow_parallel_actions=True, verbose=False)
     plan = planner.solve_file(domain, problem)
     if plan:
         print('plan:')

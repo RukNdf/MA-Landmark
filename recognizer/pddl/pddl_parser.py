@@ -32,25 +32,25 @@ class PDDL_Parser:
             str = re.sub(r';.*$', '', f.read(), flags=re.MULTILINE).lower()
         # Tokenize
         stack = []
-        list = []
+        tokens = []
         for t in re.findall(r'[()]|[^\s()]+', str):
             if t == '(':
-                stack.append(list)
-                list = []
+                stack.append(tokens)
+                tokens = []
             elif t == ')':
                 if stack:
-                    l = list
-                    list = stack.pop()
-                    list.append(l)
+                    l = tokens
+                    tokens = stack.pop()
+                    tokens.append(l)
                 else:
                     raise Exception('Missing open parentheses')
             else:
-                list.append(t)
+                tokens.append(t)
         if stack:
             raise Exception('Missing close parentheses')
-        if len(list) != 1:
+        if len(tokens) != 1:
             raise Exception('Malformed expression')
-        return list[0]
+        return tokens[0]
 
     #-----------------------------------------------
     # Parse domain
@@ -181,7 +181,13 @@ class PDDL_Parser:
                 self.types[last_type] = None
 
     def parse_predicates(self, group):
-        pass # TODO
+        return tuple(group)
+
+    def string_to_predicates(self, pred_string):
+        pred_string = pred_string.strip()
+        pred_string = pred_string[1:-1]
+
+        return self.parse_predicates(pred_string.split(' '))
 
     # -----------------------------------------------
     # Split propositions

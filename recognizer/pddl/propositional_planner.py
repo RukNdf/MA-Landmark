@@ -7,9 +7,11 @@ from recognizer.pddl.pddl_planner import PDDL_Planner
 from recognizer.pddl.state import applicable, apply
 import time
 
+
 class Propositional_Planner(PDDL_Planner):
 
-    def __init__(self, max_length=0, time_limit = 0):
+    def __init__(self, max_length=0, time_limit = 0, verbose=False):
+        super().__init__(verbose)
         self.max_length = max_length
         self.time_limit = time_limit
 

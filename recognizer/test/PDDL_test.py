@@ -103,6 +103,13 @@ class PDDL_Test(unittest.TestCase):
         self.assertEqual(parser.problem_name, 'pb1')
         print(parser.types)
 
+    def test_parse_predicates(self):
+        parser = PDDL_Parser()
+        pred = parser.string_to_predicates('(test a b)')
+        self.assertEqual('test',pred[0])
+        self.assertEqual('a', pred[1])
+        self.assertEqual('b', pred[2])
+
     def test_mutex(self):
         parser = PDDL_Parser()
         cook = Action('cook', [], [('clean',)], [], [('dinner',)], [])

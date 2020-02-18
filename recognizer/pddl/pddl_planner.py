@@ -1,5 +1,6 @@
 from recognizer.pddl.pddl_parser import PDDL_Parser
 from recognizer.pddl.state import applicable, apply
+import time
 
 
 class PDDL_Planner:
@@ -49,21 +50,13 @@ class PDDL_Planner:
 
     def solve_file(self, domainfile, problemfile, verbose=False):
         # Parser
-        import time
         start_time = time.time()
-        parser = PDDL_Parser()
-        parser.parse_domain(domainfile)
-        parser.parse_problem(problemfile)
+        parser = self.parse(domainfile,problemfile)
         # Test if first state is not the goal
         if applicable(parser.state, parser.positive_goals, parser.negative_goals):
             return [], 0
         # Grounding process
-        ground_actions = []
-        for action in parser.actions:
-            for act in action.groundify(parser.objects):
-                ground_actions.append(act)
-        # if verbose:
-        print("Number of actions: %d"%len(ground_actions))
+        ground_actions = self.grounding(parser)
         plan = self.solve(ground_actions, parser.state, (parser.positive_goals, parser.negative_goals))
         final_time = time.time() - start_time
         if verbose:
@@ -75,6 +68,26 @@ class PDDL_Planner:
             else:
                 print('No plan was found')
         return plan, final_time
+
+    def parse(self, domainfile, problemfile):
+        if self.verbose: print("Parsing %s and %s" % (domainfile,problemfile))
+        parser = PDDL_Parser()
+        parser.parse_domain(domainfile)
+        parser.parse_problem(problemfile)
+        return parser
+
+    def grounding(self, parser):
+        ground_actions = []
+        start_time = time.time()
+        for action in parser.actions:
+            for act in action.groundify(parser.objects):
+                ground_actions.append(act)
+
+        final_time = time.time() - start_time
+        if self.verbose:
+            print("Grounding time: %d s" % final_time)
+            print("Number of actions: %d" % len(ground_actions))
+        return ground_actions
 
     def solve(self, domain, initial_state, goals):
         raise NotImplementedError("PDDL Planners need to implement solve")
