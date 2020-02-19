@@ -90,6 +90,5 @@ class Observations:
     def __len__(self):
         return len(self.observations)
 
-    @property
     def __iter__(self):
         return self.observations.__iter__()

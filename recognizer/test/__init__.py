@@ -1,12 +1,14 @@
 import unittest
 from .PDDL_test import PDDL_Test
 from .propositional_planner_test import Propositional_Planner_Test
+from .planner_interface_test import PlannerInterfaceTest
 
 
 def suite():
     suite = unittest.TestSuite()
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(PDDL_Test))
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(Propositional_Planner_Test))
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(PlannerInterfaceTest))
     return suite
 
 
