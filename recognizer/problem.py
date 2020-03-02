@@ -12,20 +12,23 @@ def custom_partition(s, sep):
     return (s[:i], s[i], s[i + 1:])
 
 
-class Hypothesis:
+class Hypothesis:  # TODO refactor this to alllow for single agent goal recognition
+    """ A Team hypothesis"""
 
-    def __init__(self, atoms=[], team = None):
-        self.atoms = atoms
-        self.is_true = True
-
-        self.team = team
+    def __init__(self, atoms=[], team = None, work_dir=""):
+        self.atoms = frozenset(atoms)
+        self.is_true = False
+        self.team = frozenset(team) if team is not None else None
+        self.work_dir = work_dir
+        self.test_failed = False
 
     def evaluate(self, index, observations):
-        hyp_problem = 'hyp_%d_problem.pddl' % index
+        hyp_problem = self.work_dir+'hyp_%d_problem.pddl' % index
         self.generate_pddl_for_hyp_plan(hyp_problem)
 
+
     def generate_pddl_for_hyp_plan(self, out_name):
-        instream = open('template.pddl')
+        instream = open(self.work_dir+'template.pddl')
         outstream = open(out_name, 'w')
 
         for line in instream:
@@ -34,9 +37,11 @@ class Hypothesis:
                 for atom in self.atoms:
                     outstream.write(atom)
             elif '<TEAM-OBJS>' in line:
+                outstream.write(' ')
                 for agent in self.team:
                     outstream.write(agent)
             elif '<TEAM-ATOMS>' in line:
+                outstream.write(' ')
                 for agent in self.team:
                     outstream.write('(agent %s)'%agent)
             else:
@@ -45,15 +50,26 @@ class Hypothesis:
         outstream.close()
         instream.close()
 
+    def check_if_actual(self, actual_hyps):
+        self.is_true = False
+        for actual in actual_hyps:
+            if actual.atoms == self.atoms and actual.team == self.team:
+                self.is_true = True
+                return True
+
+        return self.is_true
+
     @staticmethod
-    def load_hypotheses(hyp_file = "hyps.dat"):
+    def load_hypotheses(hyp_file='hyps.dat', work_dir=''):
+        # actual_hyps = Hypothesis.load_real_hypothesis()
         hyps = []
         instream = open(hyp_file)
         for line in instream:
             line = line.strip()
             atoms = [tok.strip() for tok in line.split(',')]
-            # TODO - check if I need to implement something analogous to check_if_actual from Ramirez
-            hyps.append(Hypothesis(atoms))
+            h = Hypothesis(atoms,work_dir=work_dir)
+            # h.check_if_actual(actual_hyps) # Check if actual is pointless, since what we read from file has no teams
+            hyps.append(h)
         instream.close()
         return hyps
 
@@ -71,6 +87,14 @@ class Hypothesis:
         instream.close()
         return hyps
 
+    def __str__(self):
+        res = "" if self.team is None else str(self.team)+": "
+        for a in self.atoms:
+            res += a
+        return res
+
+    def __repr__(self):
+        return str(self)
 
 class Observations:
     """ A set of observations for a specific agent. We assume
@@ -92,3 +116,6 @@ class Observations:
 
     def __iter__(self):
         return self.observations.__iter__()
+
+    def __getitem__(self, item):
+        return self.observations[item]

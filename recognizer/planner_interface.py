@@ -2,6 +2,8 @@ from recognizer import problem
 from recognizer.pddl.sat_planner import SATPlanner
 import sys, os, csv, time, math
 
+from z3 import Solver, And, Or, Not, Implies, sat, Bool
+
 
 class PlannerInterface:
 
@@ -15,7 +17,6 @@ class PlannerInterface:
     def execute(self, observations):
         raise NotImplementedError("PlannerInterface implementations need to implement execute")
 
-from z3 import Solver, And, Or, Not, Implies, sat, Bool
 
 class SATPlannerInterface(PlannerInterface):
 

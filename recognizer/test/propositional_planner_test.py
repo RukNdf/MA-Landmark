@@ -6,7 +6,7 @@ from recognizer.pddl.action import Action
 from recognizer.pddl.propositional_planner import Propositional_Planner
 from recognizer.pddl.sat_planner import SATPlanner
 from recognizer.pddl.heuristic_planner import Heuristic_Planner
-import time
+import time, sys
 
 # ==========================================
 # Test Propositional_Planner
@@ -29,6 +29,7 @@ class Propositional_Planner_Test(unittest.TestCase):
 
     # @unittest.skipUnless(sys.platform.startswith("osx"), "Skip, as travis will timeout")
     # @unittest.skip("Skip, to avoid timeout")
+    @unittest.skipUnless(sys.platform.startswith("linux"), "Only test in Travis")
     def test_solve_psr(self):
         domain_template = 'examples/psr-small/domain{0}.pddl'
         problem_template = 'examples/psr-small/task{0}.pddl'
