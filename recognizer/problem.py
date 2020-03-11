@@ -79,6 +79,9 @@ class Hypothesis:
     def __repr__(self):
         return str(self)
 
+    def __eq__(self, other):
+        return self.atoms == other.atoms
+
 
 class TeamHypothesis(Hypothesis):
     """ A Team hypothesis"""
@@ -88,7 +91,7 @@ class TeamHypothesis(Hypothesis):
         self.team = frozenset(team) if team is not None else None
 
     def generate_pddl_for_hyp_plan(self, out_name):
-        instream = open(self.work_dir+'template.pddl')
+        instream = open(self.work_dir+'ma-template.pddl')
         outstream = open(out_name, 'w')
 
         for line in instream:
@@ -155,6 +158,9 @@ class TeamHypothesis(Hypothesis):
 
     def __repr__(self):
         return str(self)
+
+    def __eq__(self, other):
+        return self.atoms == other.atoms and self.team == other.team
 
 
 class Observations:

@@ -17,10 +17,32 @@ class SATPlanRecognizer(PlanRecognizer):
             return h # Still needs to work on this
         return False
 
+    def add_observation_constraints(self, s, planner, ground_actions, length, observations):
+        obsSort = DeclareSort('Obs')
+        orderObs = Function('orderObs', obsSort, IntSort())
+        orderExec = Function('orderExec', obsSort, IntSort())
+        obsConsts = []
+        for i in range(0, len(observations)):
+            o = Const(str(observations[i]), obsSort)
+            obsConsts.append(o)
+            s.add(orderObs(o) == i)
+
+        for t in range(0, length):
+            for action in ground_actions:
+                index = observations.index_of(action.signature())
+                if index > -1:
+                    obsC = obsConsts[index]
+                    s.add(Implies(planner.action_prop_at(action, t), orderExec(obsC) == t))
+
+        x = Const('x', obsSort)
+        y = Const('y', obsSort)
+        # orderSync = Function('order-sync', BoolSort())
+        s.add(ForAll([x, y], Implies(orderObs(x) < orderObs(y), orderExec(x) < orderExec(y))))
+
     def evaluate_hypothesis(self, index, hypothesis, observations):
         hyp_problem = self.options.work_dir + 'hyp_%d_problem.pddl' % index
         # domain_file = self.options.work_dir+self.options.domain_name+'.pddl'
-        domain_file = 'examples/blocksworld/ma-blocksworld.pddl'
+        domain_file = 'examples/blocksworld/blocksworld.pddl'
         hypothesis.generate_pddl_for_hyp_plan(hyp_problem)
         planner = SATPlanner(allow_parallel_actions=True, verbose=True)
         planner.max_length = 10
@@ -34,28 +56,10 @@ class SATPlanRecognizer(PlanRecognizer):
             s = Solver()
             planner.props.clear()
             planner.action_map.clear()
+            # if self.options.verbose: print("Encoding domain with length {0}".format(length))
             planner.encode_formula(s, ground_actions, parser.state, (parser.positive_goals, parser.negative_goals), length)
             # Add the constraints for the observations
-            obsSort = DeclareSort('Obs')
-            orderObs = Function('orderObs', obsSort, IntSort())
-            orderExec = Function('orderExec', obsSort, IntSort())
-            obsConsts = []
-            for i in range(0,len(observations)):
-                o = Const(str(observations[i]), obsSort)
-                obsConsts.append(o)
-                s.add(orderObs(o) == i)
-
-            for t in range(0,length):
-                for action in ground_actions:
-                    index = observations.index_of(action.signature())
-                    if index > -1:
-                        obsC = obsConsts[index]
-                        s.add(Implies(planner.action_prop_at(action, t), orderExec(obsC) == t))
-
-            x = Const('x', obsSort)
-            y = Const('y', obsSort)
-            orderSync = Function('order-sync', BoolSort())
-            s.add(ForAll([x,y], Implies(orderObs(x) < orderObs(y), orderExec(x) < orderExec(y) )) )
+            self.add_observation_constraints(s, planner, ground_actions, length, observations)
 
             # if self.options.verbose: print(s.to_smt2())
             if s.check() == sat:
@@ -63,6 +67,7 @@ class SATPlanRecognizer(PlanRecognizer):
                 plan = planner.extract_plan(s.model(),length)
                 if self.options.verbose: print("Plan is %s"%plan)
                 hypothesis.cost = len(plan)
+                return plan
             else:
                 if self.options.verbose: print("No model found with length {0}".format(length))
 

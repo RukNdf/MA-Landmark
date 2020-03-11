@@ -18,9 +18,10 @@ class Action:
         self.cost = cost
 
     def __repr__(self):
-        return "<" + self.name + "," + str(self.parameters) + "," + str(self.positive_preconditions) + "," + str(
-            self.negative_preconditions) + \
-               "," + str(self.add_effects) + "," + str(self.del_effects) + "," + str(self.cost) + ">"
+        # return "<" + self.name + "," + str(self.parameters) + "," + str(self.positive_preconditions) + "," + str(
+        #     self.negative_preconditions) + \
+        #        "," + str(self.add_effects) + "," + str(self.del_effects) + "," + str(self.cost) + ">"
+        return str(self.signature())
 
     def __str__(self):
         return 'action: ' + self.name + \
