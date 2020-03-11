@@ -6,7 +6,7 @@ from recognizer.pddl.action import Action
 from recognizer.pddl.propositional_planner import Propositional_Planner
 from recognizer.pddl.sat_planner import SATPlanner
 from recognizer.pddl.heuristic_planner import Heuristic_Planner
-import time, sys
+import time, sys, math
 
 # ==========================================
 # Test Propositional_Planner
@@ -91,9 +91,24 @@ class Propositional_Planner_Test(unittest.TestCase):
 
         bpd_list = [b_pb1, b_pb2, b_pb3, b_pb4, b_pb5, b_pb6]
         results = [2, 6, 4, 8, 8, 10]
+
+        times = []
         for b, r in zip(bpd_list, results):
             plan, time = planner.solve_file(blk, b, False)
+            times.append(time)
             self.assertEqual(r, len(plan), "Failed on BW prob %s"%b )
+
+        times_simp = []
+        planner = SATPlanner(simplify=True)
+        for b, r in zip(bpd_list, results):
+            plan, time = planner.solve_file(blk, b, False)
+            times_simp.append(time)
+            self.assertEqual(r, len(plan), "Failed on BW prob %s"%b )
+
+        avg_time = sum(times) / len(times)
+        avg_time_simp = sum(times_simp) / len(times_simp)
+        print("Unsimplified time: %f | Simplified time: %f "%(avg_time, avg_time_simp))
+        self.assertGreaterEqual(avg_time,avg_time_simp,"Simplification did not work")
 
     def test_benchmark_planners(self):
         pass

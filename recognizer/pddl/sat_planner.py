@@ -4,7 +4,7 @@
 from itertools import combinations
 
 # from z3 import *
-from z3 import Solver, And, Or, Not, Implies, sat, Bool
+from z3 import Solver, And, Or, Not, Implies, sat, Bool, simplify, With, Tactic, Then
 
 from recognizer.pddl.domain import Domain
 from recognizer.pddl.pddl_planner import PDDL_Planner
@@ -12,7 +12,7 @@ from recognizer.pddl.pddl_planner import PDDL_Planner
 
 class SATPlanner(PDDL_Planner):
 
-    def __init__(self, allow_parallel_actions=False, verbose=False):
+    def __init__(self, allow_parallel_actions=False, verbose=False, simplify=False):
         super().__init__(verbose)
         self.props = dict()
         self.action_map = dict()
@@ -20,13 +20,22 @@ class SATPlanner(PDDL_Planner):
         self.verbose = verbose
         self.allow_parallel_actions = allow_parallel_actions
         self.action_mutexes = dict()
+        self.simplify = simplify
 
     def solve(self, actions, initial_state, goal_state):
         """Solves the planning problem given the elements of the problem
         """
         # encode the problem
         for length in range(0,self.max_length):
-            s = Solver()
+            if self.simplify:
+                # s = Then('sat-preprocess', 'psmt').solver()
+                # s = With('psmt').solver()
+                # s = Then('aig', 'elim-and','psmt').solver()
+                # s = Then('aig', 'psmt').solver()
+                # s = Then('simplify', 'propagate-values', 'ctx-simplify').solver()
+                s = Then('simplify', 'propagate-values', 'psmt').solver()
+            else:
+                s = Solver()
             self.props.clear()
             self.action_map.clear()
             print("Encoding domain with length {0}".format(length))
@@ -36,9 +45,7 @@ class SATPlanner(PDDL_Planner):
             if s.check() == sat:
                 if self.verbose: print("Model found with length {0}".format(length))
                 # print(s.model())
-                plan = self.extract_plan(s.model(),length)
-                # print(plan)
-                return plan
+                return self.extract_plan(s.model(),length)
             else:
                 if self.verbose: print("No model found with length {0}".format(length))
         return None
@@ -155,6 +162,7 @@ class SATPlanner(PDDL_Planner):
         s.add(And(*full_frame_axioms))
         s.add(And(*exclusion_axiom))
         s.add(And(*frame_axioms))
+
 
     def action(self,action,t):
 

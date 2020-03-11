@@ -36,6 +36,9 @@ class Action:
     def __hash__(self):
         return hash((self.name, self.parameters))  # This should work even in the ground case.
 
+    def signature(self):
+        return tuple([self.name]+list(self.parameters))
+
     def all_facts(self):
         facts = []
         # TODO we need to change this to separate ground from lifted operators, now I'm assuming it's propositional
@@ -92,6 +95,7 @@ class Action:
                 iv += 1
             g.append(a)
         return frozenset(g)
+
 
 if __name__ == '__main__':
     a = Action('move', [['?ag', 'agent'], ['?from', 'pos'], ['?to', 'pos']],

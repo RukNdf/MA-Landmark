@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from recognizer.planner_interface import PlannerInterface
-from recognizer.problem import Observations, Hypothesis
+from recognizer.problem import Observations, Hypothesis, TeamHypothesis
 
 
 class PlanRecognizer:
@@ -9,8 +9,8 @@ class PlanRecognizer:
 
     def __init__(self, options):
         self.options = options
-        self.observations = Observations(options.work_dir+'obs.dat')
-        self.hyps = self.load_hypotheses(options.work_dir+'hyps.dat')
+        self.observations = Observations(options.work_dir+'ma-obs.dat')
+        self.hyps = self.load_hypotheses('hyps.dat')
         self.unique_goal = None
         self.accepted_hypotheses = []
 
@@ -26,7 +26,6 @@ class PlanRecognizer:
     def write_report(self, experiment, hyps):
         outstream = open('report.txt', 'w')
 
-        # Convert this to Python 3
         # print(s,end="", file=outstream)
         print("Experiment=%s" % experiment, file=outstream)
         print("Num_Hyp=%d" % len(hyps), file=outstream)
@@ -55,3 +54,12 @@ class PlanRecognizer:
         # TODO I still need to refactor this function to something more elegant in terms of how we access it
         # return None
         raise NotImplementedError("You need to implement your method to run the recognizer")
+
+
+class TeamPlanRecognizer(PlanRecognizer):
+
+    def __init__(self,options):
+        PlanRecognizer.__init__(self, options)
+
+    def load_hypotheses(self, hyp_files = 'hyps.dat'):
+        return TeamHypothesis.load_hypotheses(hyp_files, work_dir=self.options.work_dir)

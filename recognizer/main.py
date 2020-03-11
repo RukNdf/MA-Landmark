@@ -2,7 +2,7 @@ from recognizer.pddl.propositional_planner import Propositional_Planner
 from recognizer.pddl.sat_planner import SATPlanner
 from recognizer.pddl.heuristic_planner import Heuristic_Planner
 
-from recognizer.ma_plan_recognizer import SATPlanRecognizer
+from recognizer.ma_plan_recognizer import SATTeamPlanRecognizer
 from recognizer.plan_recognizer_factory import PlanRecognizerFactory
 
 import sys
@@ -31,8 +31,8 @@ def main():
     recognizer = None
     if options.recognizer == 'sat':
         # factory = PlanRecognizerFactory()
-        # recognizer = factory.get_recognizer('sat')#factory.get_recognizer('SATPlanRecognizer')
-        recognizer = SATPlanRecognizer(options)
+        # recognizer = factory.get_recognizer('sat')#factory.get_recognizer('SATTeamPlanRecognizer')
+        recognizer = SATTeamPlanRecognizer(options)
 
     if recognizer is not None:
         run_recognizer(recognizer)

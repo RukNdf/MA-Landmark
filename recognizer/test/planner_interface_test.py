@@ -1,18 +1,30 @@
 import unittest
 from recognizer.planner_interface import SATPlannerInterface
-from recognizer.problem import Observations, Hypothesis
+from recognizer.problem import Observations, Hypothesis, TeamHypothesis
 import sys
+
 
 class PlannerInterfaceTest(unittest.TestCase):
 
     def test_observations(self):
-        observations = Observations('examples/blocksworld/obs.dat')
+        observations = Observations('examples/blocksworld/ma-obs.dat')
         self.assertEqual('(pickup ag1 a)', observations[0])
 
+        observations = Observations('examples/blocksworld/obs.dat')
+        self.assertEqual('(pickup a)', observations[0])
+
     def test_hypothesis(self):
-        hypotheses = Hypothesis.load_hypotheses('examples/blocksworld/hyps.dat')
+        hypotheses = Hypothesis.load_hypotheses('hyps.dat',work_dir="examples/blocksworld/")
+        self.assertIn('(on a b)', hypotheses[0].atoms)
+        actual_hypotheses = Hypothesis.load_real_hypothesis('realHyp.dat', work_dir='examples/blocksworld/')
+        hypotheses[0].check_if_actual(actual_hypotheses)
+        self.assertTrue(hypotheses[0].is_true)
+        self.assertFalse(hypotheses[2].is_true)
+
+    def test_team_hypothesis(self):
+        hypotheses = TeamHypothesis.load_hypotheses('hyps.dat',work_dir="examples/blocksworld/")
         self.assertIn('(on a b)',hypotheses[0].atoms)
-        actual_hypotheses = Hypothesis.load_real_hypothesis('examples/blocksworld/realHyp.dat')
+        actual_hypotheses = TeamHypothesis.load_real_hypothesis('realTeamHyp.dat', work_dir='examples/blocksworld/')
         hypotheses[0].team = frozenset(['ag1','ag2'])
         hypotheses[0].check_if_actual(actual_hypotheses)
         self.assertTrue(hypotheses[0].is_true)
@@ -31,7 +43,7 @@ class PlannerInterfaceTest(unittest.TestCase):
         self.assertIsNotNone(plan)
         self.assertEqual(6,len(plan))
 
-        observations = Observations('examples/blocksworld/obs.dat')
+        observations = Observations('examples/blocksworld/ma-obs.dat')
         plan_constrained = planner_interface.execute(observations)
 
 

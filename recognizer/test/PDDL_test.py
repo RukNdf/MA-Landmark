@@ -67,6 +67,7 @@ class PDDL_Test(unittest.TestCase):
                 Action('dolly', [], [('garbage',)], [], [], [('garbage',), ('quiet',)])
             ]
         )
+        self.assertEqual(tuple(['cook']), parser.actions[0].signature())
 
     # ------------------------------------------
     # Test parse problem
@@ -91,10 +92,18 @@ class PDDL_Test(unittest.TestCase):
         parser.parse_domain('examples/dwr/dwr.pddl')
         parser.parse_problem('examples/dwr/pb1.pddl')
         self.assertEqual(parser.problem_name, 'pb1')
-        print(parser.objects.values())
+        # print(parser.objects.values())
         self.assertEqual(set(['r1','l1','l2','k1','k2','p1','q1','p2','q2','ca','cb','cc','cd','ce','cf', 'pallet']),
                          {object for obj_types in parser.objects.values() for object in obj_types})
         # print(parser.actions)
+
+    def test_action_signature(self):
+        parser = PDDL_Parser()
+        parser.parse_domain('examples/dwr/dwr.pddl')
+        parser.parse_problem('examples/dwr/pb1.pddl')
+        planner = PDDL_Planner()
+        ground_actions = planner.grounding(parser)
+        self.assertIn(('move', 'r1', 'l1', 'l2'), [action.signature() for action in ground_actions])
 
     def test_parse_types(self):
         parser = PDDL_Parser()

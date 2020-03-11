@@ -23,6 +23,7 @@ class Options:
         self.max_memory = 1024
         self.recognizer = 'sat'
         self.work_dir = work_dir
+        self.verbose = False
 
 class Program_Options(Options):
 
@@ -115,11 +116,11 @@ class Program_Options(Options):
             usage()
             sys.exit(1)
         if not os.path.exists('../../lp-recognizer/obs.dat'):
-            print("No 'obs.dat' file found in experiment file!", file=sys.stderr)
+            print("No 'ma-obs.dat' file found in experiment file!", file=sys.stderr)
             usage()
             sys.exit(1)
         if not os.path.exists('../../lp-recognizer/real_hyp.dat'):
-            print("No 'real_hyp.dat' file found in experiment file!", file=sys.stderr)
+            print("No 'realHyp.dat' file found in experiment file!", file=sys.stderr)
             usage()
             sys.exit(1)
 

@@ -2,7 +2,7 @@
 
 from recognizer.plan_recognizer import PlanRecognizer
 # XXX My implementation of the factory relies on all recognizer classes having been imported into the plan_recognition module
-from recognizer.ma_plan_recognizer import SATPlanRecognizer
+from recognizer.ma_plan_recognizer import SATTeamPlanRecognizer
 
 import importlib
 

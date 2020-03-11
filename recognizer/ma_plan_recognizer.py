@@ -1,9 +1,9 @@
-from recognizer.plan_recognizer import PlanRecognizer
+from recognizer.plan_recognizer import PlanRecognizer, TeamPlanRecognizer
 from recognizer.pddl.sat_planner import SATPlanner
 from recognizer.pddl.pddl_parser import PDDL_Parser
 
 
-class SATPlanRecognizer(PlanRecognizer):
+class SATTeamPlanRecognizer(TeamPlanRecognizer):
 
     name = "sat"
 

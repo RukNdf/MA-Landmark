@@ -33,8 +33,12 @@
 	(implies (and p_2) (= (orderExec p) 2) ) )
 
 
-(define-fun order-sync () Bool 
-	(implies (< (orderObs p) (orderObs q)) (< (orderExec p) (orderExec q))))
+;(define-fun order-sync () Bool
+;	(implies (< (orderObs p) (orderObs q)) (< (orderExec p) (orderExec q))))
+
+(define-fun order-sync () Bool
+    (forall ((x Obs) (y Obs)) (implies (< (orderObs x) (orderObs y)) (< (orderExec x) (orderExec y))) )
+)
 
 ; (declare-fun order (Obs Bool) Int)
 ; (assert (= (order p p_0) 0))

@@ -9,15 +9,15 @@ class GRTest(unittest.TestCase):
         self.assertEqual('(on a b)', hyps[0].atoms[0])
 
     def test_load_observations(self):
-        obsAll = Observations('examples/blocksworld/obs.dat')
+        obsAll = Observations('examples/blocksworld/ma-obs.dat')
         self.assertEqual(6,len(obsAll))
         self.assertEqual('(pickup ag1 a)',obsAll.observations[0])
 
-        obsAg1 = Observations('examples/blocksworld/obs.dat',agent='ag1')
+        obsAg1 = Observations('examples/blocksworld/ma-obs.dat',agent='ag1')
         self.assertEqual(2, len(obsAg1))
 
     def test_load_real_hypotheses(self):
-        hyps = Hypothesis.load_real_hypothesis('examples/blocksworld/realHyp.dat')
+        hyps = Hypothesis.load_real_hypothesis('examples/blocksworld/realTeamHyp.dat')
         self.assertEqual(2,len(hyps))
         self.assertIn('ag1', hyps[0].team)
         self.assertIn('ag3',hyps[1].team)

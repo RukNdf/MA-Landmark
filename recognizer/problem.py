@@ -12,20 +12,80 @@ def custom_partition(s, sep):
     return (s[:i], s[i], s[i + 1:])
 
 
-class Hypothesis:  # TODO refactor this to alllow for single agent goal recognition
-    """ A Team hypothesis"""
-
-    def __init__(self, atoms=[], team = None, work_dir=""):
+# noinspection SpellCheckingInspection
+class Hypothesis:
+    """ A Single agent hypothesis"""
+    def __init__(self, atoms=[], work_dir="."):
         self.atoms = frozenset(atoms)
         self.is_true = False
-        self.team = frozenset(team) if team is not None else None
         self.work_dir = work_dir
         self.test_failed = False
+        self.cost = 0
 
     def evaluate(self, index, observations):
         hyp_problem = self.work_dir+'hyp_%d_problem.pddl' % index
         self.generate_pddl_for_hyp_plan(hyp_problem)
 
+    def generate_pddl_for_hyp_plan(self, out_name):
+        instream = open(self.work_dir+'/template.pddl')
+        outstream = open(out_name, 'w')
+
+        for line in instream:
+            line = line.strip()
+            if '<HYPOTHESIS>' in line:
+                for atom in self.atoms:
+                    outstream.write(atom)
+            else:
+                outstream.write(line)
+
+        outstream.close()
+        instream.close()
+
+    def check_if_actual(self, actual_hyps):
+        self.is_true = self.atoms == actual_hyps.atoms
+
+    @staticmethod
+    def load_hypotheses(hyp_file='hyps.dat', work_dir='.'):
+        actual_hyps = Hypothesis.load_real_hypothesis(work_dir=work_dir)
+        hyps = []
+        instream = open(work_dir+ '/' + hyp_file)
+        for line in instream:
+            line = line.strip()
+            atoms = [tok.strip() for tok in line.split(',')]
+            h = Hypothesis(atoms, work_dir=work_dir)
+            h.check_if_actual(actual_hyps)
+            hyps.append(h)
+        instream.close()
+        return hyps
+
+    @staticmethod
+    def load_real_hypothesis(hyp_file='realHyp.dat', work_dir='.'):
+        real_hyp_atoms = []
+        instream = open(work_dir + '/' + hyp_file)
+        for line in instream:
+            real_hyp_atoms = [tok.strip() for tok in line.split(',')]
+        instream.close()
+        return Hypothesis(real_hyp_atoms)
+
+    def __iter__(self):
+        return iter(self.atoms)
+
+    def __str__(self):
+        res = ""
+        for a in self.atoms:
+            res += a
+        return res
+
+    def __repr__(self):
+        return str(self)
+
+
+class TeamHypothesis(Hypothesis):
+    """ A Team hypothesis"""
+
+    def __init__(self, atoms=[], team = None, work_dir=""):
+        Hypothesis.__init__(self,atoms,work_dir)
+        self.team = frozenset(team) if team is not None else None
 
     def generate_pddl_for_hyp_plan(self, out_name):
         instream = open(self.work_dir+'template.pddl')
@@ -60,29 +120,29 @@ class Hypothesis:  # TODO refactor this to alllow for single agent goal recognit
         return self.is_true
 
     @staticmethod
-    def load_hypotheses(hyp_file='hyps.dat', work_dir=''):
-        # actual_hyps = Hypothesis.load_real_hypothesis()
+    def load_hypotheses(hyp_file='hyps.dat', work_dir='.'): # TODO There might be a bit of code replication here
+        actual_hyps = TeamHypothesis.load_real_hypothesis(work_dir=work_dir)
         hyps = []
-        instream = open(hyp_file)
+        instream = open(work_dir + '/' + hyp_file)
         for line in instream:
             line = line.strip()
             atoms = [tok.strip() for tok in line.split(',')]
-            h = Hypothesis(atoms,work_dir=work_dir)
-            # h.check_if_actual(actual_hyps) # Check if actual is pointless, since what we read from file has no teams
+            h = TeamHypothesis(atoms, work_dir=work_dir)
+            h.check_if_actual(actual_hyps)  # Check if actual is pointless, since what we read from file has no teams
             hyps.append(h)
         instream.close()
         return hyps
 
     @staticmethod
-    def load_real_hypothesis(hyp_file = 'realHyp.dat'):
+    def load_real_hypothesis(hyp_file = 'realTeamHyp.dat', work_dir='.'):
         hyps = []
-        instream = open(hyp_file)
+        instream = open(work_dir+'/'+hyp_file)
         for line in instream:
             line = line.strip()
             agents, _, atoms = custom_partition(line, ':')
             atoms = [tok.strip() for tok in atoms.split(',')]
             agents = [tok.strip() for tok in agents.split(',')]
-            hyps.append(Hypothesis(atoms,agents))
+            hyps.append(TeamHypothesis(atoms,agents))
 
         instream.close()
         return hyps
@@ -96,11 +156,14 @@ class Hypothesis:  # TODO refactor this to alllow for single agent goal recognit
     def __repr__(self):
         return str(self)
 
+
 class Observations:
     """ A set of observations for a specific agent. We assume
-        the first parameter of the actions are always the agent"""
+        the first parameter of the actions are always the agent
+        TODO This may need refactoring later
+    """
     
-    def __init__(self, obs_file="obs.dat", agent = None):
+    def __init__(self, obs_file="ma-obs.dat", agent = None):
         self.observations = []
         instream = open(obs_file)
         for line in instream:
@@ -110,7 +173,12 @@ class Observations:
                 self.observations.append(obs)
         instream.close()
 
-    @property
+    def index_of(self, action_signature):
+        for i in range(0,len(self.observations)):
+            if action_signature == self.observations[i]:
+                return i
+        return -1
+
     def __len__(self):
         return len(self.observations)
 
