@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 # Four spaces as indentation [no tabs]
+#
+#  propositional_planner.py
+#  ma-goal-recognition
+#
+#  Created by Felipe Meneguzzi on 2020-03-12.
+#  Copyright 2020 Felipe Meneguzzi. All rights reserved.
+#
+
 
 from recognizer.pddl.pddl_parser import PDDL_Parser
 from recognizer.pddl.pddl_planner import PDDL_Planner

@@ -1,3 +1,13 @@
+#!/usr/bin/env python
+#
+#  GR_Test.py
+#  ma-goal-recognition
+#
+#  Created by Felipe Meneguzzi on 2020-03-12.
+#  Copyright 2020 Felipe Meneguzzi. All rights reserved.
+#
+
+
 import unittest
 
 from recognizer.problem import Hypothesis, Observations

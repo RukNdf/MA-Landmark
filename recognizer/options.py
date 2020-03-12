@@ -1,9 +1,20 @@
+#!/usr/bin/env python
+#
+#  options.py
+#  ma-goal-recognition
+#
+#  Created by Felipe Meneguzzi on 2020-03-12.
+#  Copyright 2020 Felipe Meneguzzi. All rights reserved.
+#
+
+
 import getopt, os, sys
 
 
 def usage():
     print("Parameters:", file=sys.stderr)
-    print("-e  --experiment <file>          Plan Recognition experiment files (tar'ed)", file=sys.stderr)
+    print("-b  --batch                      Run a batch of experiments", file=sys.stderr)
+    print("-e  --experiment <file/folder>   Plan Recognition experiment files (tar'ed) or folder (in batch mode)", file=sys.stderr)
     print("-h  --help                       Get Help", file=sys.stderr)
     print("-t  --max-time <time>            Maximum allowed execution time (defaults to 1800 secs)", file=sys.stderr)
     print("-m  --max-memory <time>          Maximum allowed memory consumption (defaults to 1Gb)", file=sys.stderr)
@@ -25,21 +36,23 @@ class Options:
         self.work_dir = work_dir
         self.verbose = False
 
-class Program_Options(Options):
+
+class ProgramOptions(Options):
 
     def __init__(self, args):
         Options.__init__()
 
         try:
             opts, args = getopt.getopt(args,
-                                       "be:ht:m:r:w:",
+                                       "be:ht:m:r:w:v",
                                        ["batch",
                                         "experiment=",
                                         "help",
                                         "max-time=",
                                         "max-memory=",
                                         "recognizer=",
-                                        "work-dir="])
+                                        "work-dir=",
+                                        "verbose"])
         except getopt.GetoptError:
             print("Missing or incorrect parameters specified!", file=sys.stderr)
             # print("Missing or incorrect parameters specified!", file=sys.stderr)
@@ -89,11 +102,15 @@ class Program_Options(Options):
                     print("Working directory %s does not exist!"%self.work_dir, file=sys.stderr)
                     usage()
                     sys.exit(1)
+            if opcode in ('v', '--verbose'):
+                self.verbose = True
 
         # TODO Code below is currently useless because we set parameters manually in run experimennts (need to thoroughly clean this up)
         if self.batch:
-            print("Not checking other files", file=sys.stderr)
-            return
+            # print("Not checking other files", file=sys.stderr)
+            if not os.path.exists(self.exp_file):
+                print("Folder %s does not exist for batch experiments"%self.exp_file, file=sys.stderr)
+                sys.exit(1)
 
         if self.exp_file is None:
             print("No experiment file was specified!!", file=sys.stderr)
@@ -101,25 +118,25 @@ class Program_Options(Options):
             sys.exit(1)
 
         os.system('tar jxvf %s' % self.exp_file)
-        if not os.path.exists('../../lp-recognizer/domain.pddl'):
+        if not os.path.exists(self.work_dir+'/domain.pddl'):
             os.system('tar -jxvf %s' % self.exp_file + ' --strip-components 1')
-            if not os.path.exists('../../lp-recognizer/domain.pddl'):
+            if not os.path.exists(self.work_dir+'domain.pddl'):
                 print("No 'domain.pddl' file found in experiment file!", file=sys.stderr)
                 usage()
                 sys.exit(1)
-        if not os.path.exists('../../lp-recognizer/template.pddl'):
+        if not os.path.exists(self.work_dir+'template.pddl'):
             print("No 'template.pddl' file found in experiment file!", file=sys.stderr)
             usage()
             sys.exit(1)
-        if not os.path.exists('../../lp-recognizer/hyps.dat'):
+        if not os.path.exists(self.work_dir+'hyps.dat'):
             print("No 'hyps.dat' file found in experiment file!", file=sys.stderr)
             usage()
             sys.exit(1)
-        if not os.path.exists('../../lp-recognizer/obs.dat'):
+        if not os.path.exists(self.work_dir+'ma-obs.dat'):
             print("No 'ma-obs.dat' file found in experiment file!", file=sys.stderr)
             usage()
             sys.exit(1)
-        if not os.path.exists('../../lp-recognizer/real_hyp.dat'):
+        if not os.path.exists(self.work_dir+'realHyp.dat'):
             print("No 'realHyp.dat' file found in experiment file!", file=sys.stderr)
             usage()
             sys.exit(1)

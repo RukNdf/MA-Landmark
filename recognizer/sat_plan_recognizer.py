@@ -13,9 +13,7 @@ class SATPlanRecognizer(PlanRecognizer):
         PlanRecognizer.__init__(self,options)
 
     def accept_hypothesis(self, h):
-        if not h.test_failed:
-            return h # Still needs to work on this
-        return False
+        return not h.test_failed and h.cost == self.unique_goal.cost
 
     def add_observation_constraints(self, s, planner, ground_actions, length, observations):
         obsSort = DeclareSort('Obs')
@@ -28,31 +26,36 @@ class SATPlanRecognizer(PlanRecognizer):
             s.add(orderObs(o) == i)
 
         for t in range(0, length):
+            # forced_obs = []
             for action in ground_actions:
                 index = observations.index_of(action.signature())
                 if index > -1:
                     obsC = obsConsts[index]
+                    # forced_obs.append(planner.action_prop_at(action, t))
                     s.add(Implies(planner.action_prop_at(action, t), orderExec(obsC) == t))
+            # s.add(Or(*forced_obs))
 
         x = Const('x', obsSort)
         y = Const('y', obsSort)
         # orderSync = Function('order-sync', BoolSort())
         s.add(ForAll([x, y], Implies(orderObs(x) < orderObs(y), orderExec(x) < orderExec(y))))
+        s.add(ForAll([x, y], Implies(orderObs(x) == orderObs(y), orderExec(x) == orderExec(y))))
+        s.add(ForAll([x, y], Implies(orderObs(x) > orderObs(y), orderExec(x) > orderExec(y))))
 
     def evaluate_hypothesis(self, index, hypothesis, observations):
         hyp_problem = self.options.work_dir + 'hyp_%d_problem.pddl' % index
-        # domain_file = self.options.work_dir+self.options.domain_name+'.pddl'
-        domain_file = 'examples/blocksworld/blocksworld.pddl'
+        domain_file = self.options.work_dir+self.options.domain_name+'.pddl'
+        # domain_file = 'examples/blocksworld/blocksworld.pddl'
         hypothesis.generate_pddl_for_hyp_plan(hyp_problem)
         planner = SATPlanner(allow_parallel_actions=True, verbose=True)
-        planner.max_length = 10
+        planner.max_length = 15
 
         parser = planner.parse(domain_file, hyp_problem)
         if applicable(parser.state, parser.positive_goals, parser.negative_goals):
             hypothesis.cost = 0
         # Grounding process
         ground_actions = planner.grounding(parser)
-        for length in range(0,planner.max_length):
+        for length in range(0, planner.max_length):
             s = Solver()
             planner.props.clear()
             planner.action_map.clear()
@@ -65,7 +68,7 @@ class SATPlanRecognizer(PlanRecognizer):
             if s.check() == sat:
                 if self.options.verbose: print("Model found with length {0}".format(length))
                 plan = planner.extract_plan(s.model(),length)
-                if self.options.verbose: print("Plan is %s"%plan)
+                if self.options.verbose: print("Plan %d is %s"%(len(plan),plan))
                 hypothesis.cost = len(plan)
                 return plan
             else:

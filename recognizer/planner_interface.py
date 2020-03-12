@@ -1,3 +1,13 @@
+#!/usr/bin/env python
+#
+#  planner_interface.py
+#  ma-goal-recognition
+#
+#  Created by Felipe Meneguzzi on 2020-03-12.
+#  Copyright 2020 Felipe Meneguzzi. All rights reserved.
+#
+
+
 from recognizer import problem
 from recognizer.pddl.sat_planner import SATPlanner
 import sys, os, csv, time, math

@@ -1,3 +1,13 @@
+#!/usr/bin/env python
+#
+#  pddl_planner.py
+#  ma-goal-recognition
+#
+#  Created by Felipe Meneguzzi on 2020-03-12.
+#  Copyright 2020 Felipe Meneguzzi. All rights reserved.
+#
+
+
 from recognizer.pddl.pddl_parser import PDDL_Parser
 from recognizer.pddl.state import applicable, apply
 import time

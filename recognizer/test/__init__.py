@@ -1,3 +1,11 @@
+#
+#  __init__.py
+#  ma-goal-recognition
+#
+#  Created by Felipe Meneguzzi on 2020-03-12.
+#  Copyright 2020 Felipe Meneguzzi. All rights reserved.
+#
+
 import unittest
 from .PDDL_test import PDDL_Test
 from .propositional_planner_test import Propositional_Planner_Test

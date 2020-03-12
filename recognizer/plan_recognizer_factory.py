@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+#
+#  plan_recognizer_factory.py
+#  ma-goal-recognition
+#
+#  Created by Felipe Meneguzzi on 2020-03-12.
+#  Copyright 2020 Felipe Meneguzzi. All rights reserved.
+#
+
 
 from recognizer.plan_recognizer import PlanRecognizer
 # XXX My implementation of the factory relies on all recognizer classes having been imported into the plan_recognition module

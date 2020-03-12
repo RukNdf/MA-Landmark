@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+#
+#  problem.py
+#  ma-goal-recognition
+#
+#  Created by Felipe Meneguzzi on 2020-03-12.
+#  Copyright 2020 Felipe Meneguzzi. All rights reserved.
+#
+
 
 from recognizer.pddl.pddl_parser import string_to_fluent
 

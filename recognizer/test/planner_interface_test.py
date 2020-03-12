@@ -1,3 +1,13 @@
+#!/usr/bin/env python
+#
+#  planner_interface_test.py
+#  ma-goal-recognition
+#
+#  Created by Felipe Meneguzzi on 2020-03-12.
+#  Copyright 2020 Felipe Meneguzzi. All rights reserved.
+#
+
+
 import unittest
 from recognizer.planner_interface import SATPlannerInterface
 from recognizer.problem import Observations, Hypothesis, TeamHypothesis

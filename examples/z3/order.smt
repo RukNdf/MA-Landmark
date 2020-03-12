@@ -1,5 +1,3 @@
-; (set-option :produce-unsat-cores true)
-; (set-option :produce-proofs true)
 (declare-const p_0 Bool)
 (declare-const q_0 Bool)
 (declare-const r_0 Bool)
@@ -39,31 +37,7 @@
 (define-fun order-sync () Bool
     (forall ((x Obs) (y Obs)) (implies (< (orderObs x) (orderObs y)) (< (orderExec x) (orderExec y))) )
 )
-
-; (declare-fun order (Obs Bool) Int)
-; (assert (= (order p p_0) 0))
-; ; (assert (= (order q q_0) 0))
-; ; (assert (= (order r r_0) 0))
-; ; ;
-; (assert (= (order p p_1) 1))
-; ; (assert (= (order q q_1) 1))
-; ; (assert (= (order r r_1) 1))
-; ; ;
-; (assert (= (order p p_2) 2))
-; ; (assert (= (order q q_2) 2))
-; ; (assert (= (order r r_2) 2))
-
-
-; (assert (>= (order p p_2) (order q q_0)))
-
-(assert (<= (orderObs p) (orderObs q)))
-
-; (define-fun order-restriction () Bool
-;     (exists ((x Bool))
-;     (implies (and x)
-;         (and (exists ((y Bool)) (<= (order y) (order x)) ) )
-;     ))
-; )
+;(assert (<= (orderObs p) (orderObs q)))
 
 ; (ite (check-sat) (get-model) (get-unsat-core))
 (check-sat)

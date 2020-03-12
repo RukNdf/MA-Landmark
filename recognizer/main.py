@@ -1,3 +1,12 @@
+#!/usr/bin/env python
+#
+#  main.py
+#  ma-goal-recognition
+#
+#  Created by Felipe Meneguzzi on 2020-03-12.
+#  Copyright 2020 Felipe Meneguzzi. All rights reserved.
+#
+
 from recognizer.pddl.propositional_planner import Propositional_Planner
 from recognizer.pddl.sat_planner import SATPlanner
 from recognizer.pddl.heuristic_planner import Heuristic_Planner
@@ -7,7 +16,7 @@ from recognizer.plan_recognizer_factory import PlanRecognizerFactory
 
 import sys
 
-from recognizer.options import Program_Options
+from recognizer.options import ProgramOptions
 
 
 def run_recognizer(recognizer):
@@ -26,7 +35,7 @@ def main():
     # os.system(cmdClean)
 
     print(sys.argv)
-    options = Program_Options(sys.argv[1:])
+    options = ProgramOptions(sys.argv[1:])
 
     recognizer = None
     if options.recognizer == 'sat':
