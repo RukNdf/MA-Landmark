@@ -9,7 +9,7 @@ class SATPlanRecognizer(PlanRecognizer):
 
     name = "sat"
 
-    def __init__(self, options=None):#TODO Refactor Options part of the program to make it simpler
+    def __init__(self, options=None):
         PlanRecognizer.__init__(self,options)
 
     def accept_hypothesis(self, h):
@@ -43,8 +43,8 @@ class SATPlanRecognizer(PlanRecognizer):
         s.add(ForAll([x, y], Implies(orderObs(x) > orderObs(y), orderExec(x) > orderExec(y))))
 
     def evaluate_hypothesis(self, index, hypothesis, observations):
-        hyp_problem = self.options.work_dir + 'hyp_%d_problem.pddl' % index
-        domain_file = self.options.work_dir+self.options.domain_name+'.pddl'
+        hyp_problem = self.options.work_dir+'/'+'hyp_%d_problem.pddl' % index
+        domain_file = self.options.work_dir+'/'+self.options.domain_name+'.pddl'
         # domain_file = 'examples/blocksworld/blocksworld.pddl'
         hypothesis.generate_pddl_for_hyp_plan(hyp_problem)
         planner = SATPlanner(allow_parallel_actions=True, verbose=True)

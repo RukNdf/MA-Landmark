@@ -17,7 +17,8 @@ class PlanRecognizer:
 
     def __init__(self, options):
         self.options = options
-        self.observations = Observations(options.work_dir+'ma-obs.dat')
+        # self.observations = Observations(options.work_dir+'/ma-obs.dat')
+        self.observations = Observations(options.work_dir + '/obs.dat')
         self.hyps = self.load_hypotheses('hyps.dat')
         self.unique_goal = None
         self.accepted_hypotheses = []

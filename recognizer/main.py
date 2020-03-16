@@ -36,6 +36,7 @@ def main():
 
     print(sys.argv)
     options = ProgramOptions(sys.argv[1:])
+    options.untar_experiment()
 
     recognizer = None
     if options.recognizer == 'sat':

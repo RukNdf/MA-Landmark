@@ -67,7 +67,7 @@ class Hypothesis:
         return hyps
 
     @staticmethod
-    def load_real_hypothesis(hyp_file='realHyp.dat', work_dir='.'):
+    def load_real_hypothesis(hyp_file='real_hyp.dat', work_dir='.'):
         real_hyp_atoms = []
         instream = open(work_dir + '/' + hyp_file)
         for line in instream:

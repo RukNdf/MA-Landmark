@@ -8,9 +8,10 @@ def powerset(iterable):
     s = list(iterable)
     return chain.from_iterable(combinations(s, r) for r in range(len(s) + 1))
 
+
 class SATTeamPlanRecognizer(TeamPlanRecognizer):
 
-    name = "sat"
+    name = "team-sat"
 
     def __init__(self, options=None):#TODO Refactor Options part of the program to make it simpler
         PlanRecognizer.__init__(self,options)

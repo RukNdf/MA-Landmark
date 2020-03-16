@@ -33,7 +33,7 @@ class PlanRecognizerTest(unittest.TestCase):
         options.verbose = True
         recognizer = SATPlanRecognizer(options)
         recognizer.run_recognizer()
-        real_hypothesis = Hypothesis.load_real_hypothesis('examples/blocksworld/realHyp.dat')
+        real_hypothesis = Hypothesis.load_real_hypothesis('examples/blocksworld/real_hyp.dat')
         print("Unique goal: %s"%recognizer.unique_goal)
         self.assertIn(real_hypothesis, recognizer.accepted_hypotheses)
 

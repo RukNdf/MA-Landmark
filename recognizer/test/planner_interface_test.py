@@ -26,7 +26,7 @@ class PlannerInterfaceTest(unittest.TestCase):
     def test_hypothesis(self):
         hypotheses = Hypothesis.load_hypotheses('hyps.dat',work_dir="examples/blocksworld/")
         self.assertIn('(on a b)', hypotheses[0].atoms)
-        actual_hypotheses = Hypothesis.load_real_hypothesis('realHyp.dat', work_dir='examples/blocksworld/')
+        actual_hypotheses = Hypothesis.load_real_hypothesis('real_hyp.dat', work_dir='examples/blocksworld/')
         hypotheses[0].check_if_actual(actual_hypotheses)
         self.assertTrue(hypotheses[0].is_true)
         self.assertFalse(hypotheses[2].is_true)

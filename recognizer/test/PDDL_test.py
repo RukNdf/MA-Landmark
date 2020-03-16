@@ -104,6 +104,15 @@ class PDDL_Test(unittest.TestCase):
         self.assertEqual(set(['r1','l1','l2','k1','k2','p1','q1','p2','q2','ca','cb','cc','cd','ce','cf', 'pallet']),
                          {object for obj_types in parser.objects.values() for object in obj_types})
         # print(parser.actions)
+        planner = PDDL_Planner()
+        grounded_actions = planner.grounding(parser)
+
+        parser = PDDL_Parser()
+        parser.parse_domain('examples/blocks-world/domain.pddl')
+        parser.parse_problem('examples/blocks-world/hyp_0_problem.pddl')
+
+        planner = PDDL_Planner()
+        grounded_actions = planner.grounding(parser)
 
     def test_action_signature(self):
         parser = PDDL_Parser()
@@ -119,6 +128,8 @@ class PDDL_Test(unittest.TestCase):
         parser.parse_problem('examples/dwr/pb1.pddl')
         self.assertEqual(parser.problem_name, 'pb1')
         print(parser.types)
+        planner = PDDL_Planner()
+        grounded_actions = planner.grounding(parser)
 
     def test_parse_predicates(self):
         parser = PDDL_Parser()
@@ -138,7 +149,6 @@ class PDDL_Test(unittest.TestCase):
         self.assertTrue(wrap.is_mutex(dolly))
         self.assertTrue(dolly.is_mutex(wrap))
         self.assertFalse(cook.is_mutex(wrap))
-
 
     def test_reachability_analysis(self):
         parser = PDDL_Parser()
