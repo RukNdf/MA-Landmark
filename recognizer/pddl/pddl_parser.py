@@ -84,12 +84,37 @@ class PDDL_Parser:
                 elif t == ':predicates':
                     self.parse_predicates(group)
                 elif t == ':types':
-                    self.parse_types(group)
+                    self.types = group
                 elif t == ':action':
                     self.parse_action(group)
                 else: print(str(t) + ' is not recognized in domain')
         else:
-            raise 'File ' + domain_filename + ' does not match domain pattern'
+            raise Exception('File ' + domain_filename + ' does not match domain pattern')
+
+    #-----------------------------------------------
+    # Parse predicates
+    #-----------------------------------------------
+
+    def parse_predicates(self, group):
+        for pred in group:
+            predicate_name = pred.pop(0)
+            if predicate_name in self.predicates:
+                raise Exception('Predicate ' + predicate_name + ' redefined')
+            arguments = {}
+            untyped_variables = []
+            while pred:
+                t = pred.pop(0)
+                if t == '-':
+                    if not untyped_variables:
+                        raise Exception('Unexpected hyphen in predicates')
+                    type = pred.pop(0)
+                    while untyped_variables:
+                        arguments[untyped_variables.pop(0)] = type
+                else:
+                    untyped_variables.append(t)
+            while untyped_variables:
+                arguments[untyped_variables.pop(0)] = 'object'
+            self.predicates[predicate_name] = arguments
 
     #-----------------------------------------------
     # Parse action
@@ -113,18 +138,24 @@ class PDDL_Parser:
                 if not type(group) is list:
                     raise Exception('Error with ' + name + ' parameters')
                 parameters = []
+                untyped_parameters = []
                 p = group.pop(0)
                 while p:
-                    variable = p.pop(0)
-                    if p and p[0] == '-':
-                        p.pop(0)
-                        parameters.append([variable, p.pop(0)])
+                    t = p.pop(0)
+                    if t == '-':
+                        if not untyped_parameters:
+                            raise Exception('Unexpected hyphen in ' + name + ' parameters')
+                        ptype = p.pop(0)
+                        while untyped_parameters:
+                            parameters.append([untyped_parameters.pop(0), ptype])
                     else:
-                        parameters.append([variable, 'object'])
+                        untyped_parameters.append(t)
+                while untyped_parameters:
+                    parameters.append([untyped_parameters.pop(0), 'object'])
             elif t == ':precondition':
-                self.split_propositions(group.pop(0), positive_preconditions, negative_preconditions, name, ' preconditions')
+                self.split_predicates(group.pop(0), positive_preconditions, negative_preconditions, name, ' preconditions')
             elif t == ':effect':
-                self.split_propositions(group.pop(0), add_effects, del_effects, name, ' effects')
+                self.split_predicates(group.pop(0), add_effects, del_effects, name, ' effects')
             else: print(str(t) + ' is not recognized in action')
         self.actions.append(Action(name, parameters, frozenset(positive_preconditions), frozenset(negative_preconditions), frozenset(add_effects), frozenset(del_effects)))
 
@@ -170,63 +201,44 @@ class PDDL_Parser:
                 elif t == ':goal':
                     pos = []
                     neg = []
-                    self.split_propositions(group[1], pos, neg, '', 'goals')
+                    self.split_predicates(group[1], pos, neg, '', 'goals')
                     self.positive_goals = frozenset(pos)
                     self.negative_goals = frozenset(neg)
                 else: print(str(t) + ' is not recognized in problem')
+        else:
+            raise Exception('File ' + problem_filename + ' does not match problem pattern')
 
     # -----------------------------------------------
-    #  Parse Types
+    # State to tuple
     # -----------------------------------------------
 
-    def parse_types(self, group):
-        self.types = dict()
-        group.pop(0)
-        last_type = None
-        while group:
-            if group[0] == '-':
-                if last_type is None: print("Error parsing types")
-                group.pop(0)
-                self.types[last_type] = group.pop(0)
-                object_list = []
-            else:
-                last_type = group.pop(0)
-                self.types[last_type] = None
-
-    def parse_predicates(self, group):
-        return tuple(group)
+    def state_to_tuple(self, state):
+        return frozenset(tuple(fact) for fact in state)
 
     def string_to_predicates(self, pred_string):
         pred_string = pred_string.strip()
         pred_string = pred_string[1:-1]
 
-        return self.parse_predicates(pred_string.split(' '))
+        return tuple(pred_string.split(' '))
 
     # -----------------------------------------------
     # Split propositions
     # -----------------------------------------------
 
-    def split_propositions(self, group, pos, neg, name, part):
+    def split_predicates(self, group, pos, neg, name, part):
         if not type(group) is list:
             raise Exception('Error with ' + name + part)
         if group[0] == 'and':
             group.pop(0)
         else:
             group = [group]
-        for proposition in group:
-            if proposition[0] == 'not':
-                if len(proposition) != 2:
+        for predicate in group:
+            if predicate[0] == 'not':
+                if len(predicate) != 2:
                     raise Exception('Unexpected not in ' + name + part)
-                neg.append(tuple(proposition[-1]))
+                neg.append(tuple(predicate[-1]))
             else:
-                pos.append(tuple(proposition))
-
-    #-----------------------------------------------
-    # State to tuple
-    #-----------------------------------------------
-
-    def state_to_tuple(self, state):
-        return frozenset(tuple(fact) for fact in state)
+                pos.append(tuple(predicate))
 
 # ==========================================
 # Main

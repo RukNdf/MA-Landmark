@@ -35,11 +35,11 @@ class Hypothesis:
         self.generate_pddl_for_hyp_plan(hyp_problem)
 
     def generate_pddl_for_hyp_plan(self, out_name):
-        instream = open(self.work_dir+'/template.pddl')
-        outstream = open(out_name, 'w')
+        instream = open(self.work_dir+'/template.pddl', encoding='UTF-8')
+        outstream = open(out_name, 'w', encoding='UTF-8')
 
         for line in instream:
-            line = line.strip()
+            # line = line.strip() # This causes problems in some domains (don't know why it worked in Python 2)
             if '<HYPOTHESIS>' in line:
                 for atom in self.atoms:
                     outstream.write(atom)

@@ -103,7 +103,7 @@ class RecognizerBenchmark:
         self.experiment_names = []
         self.experiments = {}
         self.options = options
-        # self.observability = ['25', '50', '75', '100'] # FIXME parametereize this
+        # self.observability = ['25', '50', '75', '100'] # FIXME parameterize this
         self.observability = ['10', '30', '50', '70', '100']
 
     def run_benchmark(self):
@@ -130,9 +130,11 @@ class RecognizerBenchmark:
                     problems += 1
 
                     exp_options = Options(self.options.work_dir)
+                    exp_options.verbose = False
                     exp_options.exp_file = problems_path+problem_file
                     exp_options.domain_name='domain'
                     for e in self.experiment_names:
+                        self.experiments[e].observability = obs
                         success = self.experiments[e].run_experiment(exp_options)
                         if not success:
                             self.failed_experiments.append(problems_path+problem_file)
@@ -140,8 +142,11 @@ class RecognizerBenchmark:
 
             total_problems += problems
 
+            for e in self.experiments:
+                print(e.compute_stats())
+
     def compute_stats(self):
-        pass
+        print('Not implemented ')
 
 
 if __name__ == '__main__':
