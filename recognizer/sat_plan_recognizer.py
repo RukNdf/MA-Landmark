@@ -58,6 +58,7 @@ class SATPlanRecognizer(PlanRecognizer):
         # Grounding process
         ground_actions = planner.grounding(parser)
         plan = None
+        total_runtime = 0.0
         for length in range(0, planner.max_length):
             t0 = time.time()
             s = Solver()
@@ -74,16 +75,21 @@ class SATPlanRecognizer(PlanRecognizer):
                 plan = planner.extract_plan(s.model(),length)
                 if self.options.verbose: print("Plan %d is %s"%(len(plan),plan))
                 hypothesis.cost = len(plan)
+                break
             else:
                 if self.options.verbose: print("No model found with length {0}".format(length))
             tf = time.time()
             print('Runtime', tf - t0, 'secs')
-        return plan
+            total_runtime += tf - t0
+        return plan, total_runtime
 
     def run_recognizer(self):
+        total_runtime = 0.0
+        t0 = time.time()
         for i in range(0, len(self.hyps)):
             if self.options.verbose: print("Evaluating hypothesis %d: %s"%(i,str(self.hyps[i])))
-            self.evaluate_hypothesis(i, self.hyps[i], self.observations)
+            plan, plan_time = self.evaluate_hypothesis(i, self.hyps[i], self.observations)
+            total_runtime += plan_time
 
         for h in self.hyps:
             if not h.test_failed:
@@ -94,4 +100,6 @@ class SATPlanRecognizer(PlanRecognizer):
         for h in self.hyps:
             if self.accept_hypothesis(h):
                 self.accepted_hypotheses.append(h)
-
+        tf = time.time()
+        print('Total runtime', tf - t0)
+        return tf - t0
