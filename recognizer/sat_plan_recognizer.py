@@ -1,8 +1,8 @@
-from recognizer.plan_recognizer import PlanRecognizer
-from recognizer.pddl.pddl_parser import PDDL_Parser
+from z3 import Solver, And, Implies, sat, Const, Function, IntSort, ForAll, DeclareSort
+
 from recognizer.pddl.pddl_planner import applicable
 from recognizer.pddl.sat_planner import SATPlanner
-from z3 import Solver, And, Or, Not, Implies, sat, Bool, Sort, Const, Function, IntSort, BoolSort, ForAll, Var, Int, DeclareSort
+from recognizer.plan_recognizer import PlanRecognizer
 
 
 class SATPlanRecognizer(PlanRecognizer):
@@ -10,7 +10,7 @@ class SATPlanRecognizer(PlanRecognizer):
     name = "sat"
 
     def __init__(self, options=None):
-        PlanRecognizer.__init__(self,options)
+        PlanRecognizer.__init__(self, options)
 
     def accept_hypothesis(self, h):
         return not h.test_failed and h.cost == self.unique_goal.cost
@@ -38,9 +38,9 @@ class SATPlanRecognizer(PlanRecognizer):
         x = Const('x', obsSort)
         y = Const('y', obsSort)
         # orderSync = Function('order-sync', BoolSort())
-        s.add(ForAll([x, y], Implies(orderObs(x) < orderObs(y), orderExec(x) < orderExec(y))))
-        s.add(ForAll([x, y], Implies(orderObs(x) == orderObs(y), orderExec(x) == orderExec(y))))
-        s.add(ForAll([x, y], Implies(orderObs(x) > orderObs(y), orderExec(x) > orderExec(y))))
+        s.add(ForAll([x, y], And(x != y, Implies(orderObs(x) < orderObs(y), orderExec(x) < orderExec(y)))))
+        s.add(ForAll([x, y], And(x != y, Implies(orderObs(x) == orderObs(y), orderExec(x) == orderExec(y)))))
+        s.add(ForAll([x, y], And(x != y, Implies(orderObs(x) > orderObs(y), orderExec(x) > orderExec(y)))))
 
     def evaluate_hypothesis(self, index, hypothesis, observations):
         hyp_problem = self.options.work_dir+'/'+'hyp_%d_problem.pddl' % index
