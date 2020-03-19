@@ -1,3 +1,4 @@
+from recognizer.options import Options
 from recognizer.problem import Hypothesis
 from recognizer.sat_plan_recognizer import SATPlanRecognizer
 
