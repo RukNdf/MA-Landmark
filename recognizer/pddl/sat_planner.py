@@ -130,7 +130,7 @@ class SATPlanner(PDDL_Planner):
             # Encode exclusion axioms
             for (a1, a2) in combinations(action_names, 2):
                 if self.allow_parallel_actions:
-                    if a2 in self.action_mutexes[a1]:
+                    if action_propositions[a2] in self.action_mutexes[action_propositions[a1]]:
                         exclusion_axiom.append(Or(Not(a1), Not(a2)))
                 else:
                     exclusion_axiom.append(Or(Not(a1), Not(a2)))
