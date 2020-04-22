@@ -14,7 +14,9 @@ from recognizer.pddl.action import Action
 from recognizer.pddl.propositional_planner import Propositional_Planner
 from recognizer.pddl.sat_planner import SATPlanner
 from recognizer.pddl.heuristic_planner import Heuristic_Planner
-import time, sys, math
+import time
+import sys
+import math
 
 # ==========================================
 # Test Propositional_Planner

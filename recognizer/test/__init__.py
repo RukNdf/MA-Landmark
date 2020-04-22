@@ -7,9 +7,9 @@
 #
 
 import unittest
-from .PDDL_test import PDDL_Test
-from .propositional_planner_test import Propositional_Planner_Test
-from .planner_interface_test import PlannerInterfaceTest
+from recognizer.test.PDDL_test import PDDL_Test
+from recognizer.test.propositional_planner_test import Propositional_Planner_Test
+from recognizer.test.planner_interface_test import PlannerInterfaceTest
 from recognizer.test.plan_recognizer_test import PlanRecognizerTest
 
 
